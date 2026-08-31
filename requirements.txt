@@ -1,0 +1,9 @@
+pandas
+numpy
+pyarrow
+duckdb
+pybaseball
+python-dotenv
+ipykernel
+matplotlib
+pytest

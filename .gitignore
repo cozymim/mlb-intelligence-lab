@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Secrets
+.env
+
+# Data — never commit raw Statcast
+data/raw/
+data/processed/
+data/features/
+*.parquet
+*.csv
+!data/external/*.csv
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Models
+models/artifacts/**/*.pkl
+models/artifacts/**/*.joblib
+
+# Logs
+logs/
+*.log
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
