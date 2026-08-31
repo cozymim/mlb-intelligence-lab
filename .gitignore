@@ -9,11 +9,13 @@ venv/
 .env
 
 # Data — never commit raw Statcast
-data/raw/
-data/processed/
-data/features/
+data/raw/*
+data/processed/*
+data/features/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/features/.gitkeep
 *.parquet
-*.csv
 !data/external/*.csv
 
 # Notebooks
