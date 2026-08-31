@@ -53,3 +53,75 @@ Verified: the 7 swing-related values sum to 2,038 = type 'S' count.
 - `automatic_ball` reflects the 2023 pitch timer rules; will not exist
   in pre-2023 seasons.
 - Always start from `description`, aggregate up if needed. Never the reverse.
+
+---
+
+## Data hierarchy (verified 2024-04-15)
+
+game_pk > at_bat_number > pitch_number
+
+- games: 15, plate appearances: 1,111, pitches: 4,362
+- 3.93 pitches per PA — matches the 74.55% events-missing rate observed
+  earlier. Two independent paths agree, which is a good pipeline signal.
+- `at_bat_number` is unique only WITHIN a game (max 86 here).
+  Composite key (game_pk, at_bat_number) is required to identify a PA.
+  Grouping on at_bat_number alone silently merges different games.
+
+### Sort order (mandatory before any temporal operation)
+
+```python
+df.sort_values(["game_pk", "at_bat_number", "pitch_number"])
+```
+
+Statcast does not arrive in chronological order. Unsorted `shift()` or
+cumulative operations leak future information into the past.
+
+### Count semantics — verified
+
+`balls` / `strikes` are the count BEFORE the pitch is thrown, not the
+result of it. Confirmed two ways: all 1,111 first pitches are 0-0, and
+counts advance consistently with the previous pitch's description.
+
+=> Count is a legitimate pre-pitch feature for the whiff model.
+
+### Incomplete plate appearances — 4 of 1,111 (0.36%)
+
+**Type 1 — no `events` at all (1 PA)**
+Verified: game_pk 746080, top 6th, at_bat_number 44.
+Count 0-2, 2 outs, runner on 1B, description `blocked_ball`.
+The third out was recorded against the RUNNER, not the batter, so the
+PA disappeared with no outcome.
+
+**Type 2 — events == `truncated_pa` (3 PAs)**
+PA cut short for game-level reasons.
+
+**Why 0.36% still matters:**
+- Scales to hundreds of PAs across a full season
+- NOT random — concentrated in 2-out situations with runners on base,
+  so a specific game state is removed systematically
+- Fails silently: `groupby(...).last()` returns NaN rather than raising
+
+**Rule:** always filter with `events.notna()` for PA-level aggregation,
+and log how many rows were dropped. Never drop silently.
+
+### events values (18 on this date)
+
+field_out 494, strikeout 234, single 153, walk 87, double 47,
+force_out 22, grounded_into_double_play 20, home_run 20,
+hit_by_pitch 7, sac_fly 6, sac_bunt 5, truncated_pa 3,
+intent_walk 3, catcher_interf 3, triple 2, fielders_choice 2,
+field_error 1, double_play 1
+
+K% = 234/1111 = 21.1%
+BB% (including intentional) = 90/1111 = 8.1%
+Both consistent with 2024 league averages.
+
+**Open decision (Week 3):** `intent_walk` is a separate value from
+`walk`. Intentional walks reflect managerial strategy rather than
+batter skill, so standard practice excludes them from batter BB%.
+Must be fixed and documented before computing rate stats.
+
+**Also note:** computing AVG requires classifying all 18 event values
+into hits / at-bats / non-at-bats. Sacrifices, HBP, catcher
+interference, and truncated PAs are excluded from at-bats. This is
+more involved than it first appears — handle it in Week 3, not ad hoc.
