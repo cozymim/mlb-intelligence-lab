@@ -95,3 +95,26 @@ documented before any modeling, not chosen after seeing results.
 
 **Next step:** none of this is actionable yet. Continue the data
 foundation. Revisit at the Week 6 scope checkpoint.
+
+## 2026-08-31 — Unexpected count effect on whiff rate
+
+**Prediction (mine, before looking):** whiff rate would be highest in
+two-strike counts, since hitters defend and pitchers throw putaway
+pitches.
+
+**Result: wrong.** Within two-strike counts, whiff rate DECREASES as
+balls accumulate: 0-2 25.0% → 1-2 20.9% → 2-2 19.1% → 3-2 15.6%.
+3-2 is near the bottom of all twelve counts.
+
+**Hypotheses (untested):**
+- Pitcher freedom: at 0-2 a pitcher can chase out of the zone at no
+  cost. At 3-2 he must throw a strike or walk the batter, and in-zone
+  pitches generate less swing-and-miss.
+- Batter selectivity: at 3-2 the hitter can take anything off the
+  plate. At 0-2 he must protect and swings at worse pitches.
+
+**Testable version (Week 4):** is the in-zone rate of pitches
+significantly higher at 3-2 than at 0-2? Use plate_x / plate_z.
+
+**Why this is recorded:** the prediction was wrong and the data won.
+This is exactly the kind of entry that belongs in a research log.

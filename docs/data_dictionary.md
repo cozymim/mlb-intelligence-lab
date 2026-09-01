@@ -125,3 +125,186 @@ Must be fixed and documented before computing rate stats.
 into hits / at-bats / non-at-bats. Sacrifices, HBP, catcher
 interference, and truncated PAs are excluded from at-bats. This is
 more involved than it first appears — handle it in Week 3, not ad hoc.
+
+---
+
+## Plate discipline metric definitions (decided 2026-08-31)
+
+### Swing (denominator)
+foul, hit_into_play, swinging_strike, swinging_strike_blocked, foul_tip
+
+### Whiff (numerator)
+swinging_strike, swinging_strike_blocked
+
+### Excluded entirely
+foul_bunt, missed_bunt
+
+### Rationale — these are judgment calls, not obvious defaults
+
+**foul_tip is a swing but NOT a whiff.** Rule-wise it is a strike (and a
+strikeout with two strikes), but the bat made contact. A whiff metric
+measures failure to make contact. Including foul tips would overstate a
+pitcher's swing-and-miss ability.
+
+**Bunts excluded from both.** Different mechanic entirely — the bat is
+placed, not swung. Unrelated to swing decisions or contact ability, and
+usually a tactical instruction rather than a hitter choice. Standard
+practice in public analysis is to exclude.
+
+**swinging_strike_blocked counts as a whiff.** The batter missed; the
+ball merely got past the catcher. Identical from the hitter's side.
+
+These definitions are debatable. What matters is that they are fixed
+and documented, not that they match every other analyst.
+
+### Verification
+- All 5 non-swing values confirmed: ball, called_strike, blocked_ball,
+  automatic_ball, hit_by_pitch
+- Subset check passed: whiffs ⊆ swings (0 violations)
+
+### League rates — 2024-04-15, 4,362 pitches
+| Metric | Value | Numerator / Denominator |
+|---|---|---|
+| Swing% | 46.9% | 2044 / 4362 pitches |
+| Whiff% | 21.3% | 436 / 2044 swings |
+| SwStr% | 10.0% | 436 / 4362 pitches |
+
+**Whiff% and SwStr% are different metrics with different denominators.**
+Whiff% = contact ability given a swing. SwStr% also embeds the pitcher's
+ability to induce swings. Conflating them is a common error.
+
+### Whiff% by count — lookup baseline for the Week 5 model
+
+| Count | Swings | Whiff% |
+|---|---|---|
+| 0-2 | 140 | 25.0% |
+| 1-0 | 176 | 25.0% |
+| 0-1 | 283 | 24.7% |
+| 0-0 | 329 | 24.3% |
+| 1-2 | 220 | 20.9% |
+| 1-1 | 249 | 20.1% |
+| 3-0 | 5 | 20.0% |
+| 2-2 | 246 | 19.1% |
+| 3-1 | 48 | 18.8% |
+| 2-1 | 126 | 16.7% |
+| 3-2 | 173 | 15.6% |
+| 2-0 | 49 | 12.2% |
+
+Any model for P(Whiff | Swing) must beat this table, not just a
+constant league rate. A groupby with no ML is a serious baseline.
+
+Sample size warning: 3-0 has 5 swings. One swing moves it 20 points.
+Single-day data cannot support count-level conclusions.
+
+---
+
+## Pitch types (2024-04-15)
+
+### Code → name mapping (verified 1:1, no ambiguity)
+FF 4-Seam Fastball · SI Sinker · SL Slider · CH Changeup · FC Cutter
+CU Curveball · ST Sweeper · KC Knuckle Curve · FS Split-Finger
+SV Slurve
+
+### Usage and outcomes
+
+| Type | Pitches | Usage | Swing% | Whiff% | Velo |
+|---|---|---|---|---|---|
+| FF | 1346 | 30.9% | 46.5% | 16.5% | 94.2 |
+| SI | 698 | 16.0% | 45.0% | 10.8% | 92.9 |
+| SL | 596 | 13.7% | 51.5% | 32.2% | 85.7 |
+| CH | 466 | 10.7% | 50.6% | 31.4% | 86.2 |
+| FC | 414 | 9.5% | 51.0% | 18.5% | 89.0 |
+| CU | 314 | 7.2% | 40.4% | 22.8% | 80.0 |
+| ST | 232 | 5.3% | 42.2% | 20.4% | 81.9 |
+| KC | 136 | 3.1% | 44.1% | 36.7% | 82.2 |
+| FS | 119 | 2.7% | 47.1% | 28.6% | 85.5 |
+| SV | 25 | 0.6% | 36.0% | — | 79.1 |
+| NaN | 16 | 0.4% | 0% | — | — |
+
+Minimum threshold applied: 30 swings. Excluded: SV (9 swings),
+NaN (0 swings). Excluded rows are reported, not silently dropped.
+
+### Observations
+
+**Velocity and whiff rate are inversely related here.** Sinker (92.9,
+10.8%) and four-seam (94.2, 16.5%) sit at the bottom; slider (85.7,
+32.2%) and changeup (86.2, 31.4%) at the top. Fastballs have
+predictable trajectories and exist to establish counts, not to miss
+bats.
+
+**Consequence: whiff rate is the wrong sole metric for a sinker.**
+Sinkers are designed to induce ground balls. Evaluating every pitch
+type by the same criterion produces false conclusions. Week 4 pitcher
+analysis needs pitch-type-specific success criteria.
+
+**Swing% carries separate information.** Slider 51.5% vs curveball
+40.4%: sliders look like strikes until late, curveballs are
+identifiable out of the hand. SwStr% = Swing% × Whiff% — slider
+reaches 16.6%, the highest of any pitch.
+
+### Cautions
+
+**Classification is inference, not measurement.** `pitch_type` is an
+algorithmic label derived from trajectory, not the pitcher's stated
+intent. Boundary cases (slider vs sweeper) will be misclassified.
+
+**The value set is season-dependent.** ST (Sweeper) and SV (Slurve)
+were introduced by MLB in 2023 and do not exist in earlier seasons;
+historical data has also been reclassified. This will break pitch-type
+aggregation across multi-season joins. Handle explicitly.
+
+**KC at 36.7% is the highest whiff rate but rests on 60 swings.**
+Clearing a threshold does not make estimates equally reliable. Five
+swings moves it 8 points. Shrinkage / intervals needed (Week 6).
+
+### Missing pitch_type — 16 rows: CONFIRMED as "no pitch thrown"
+
+All 16 rows have description == `automatic_ball` (pitch clock
+violation). Exact match, not a coincidence.
+
+Physical evidence confirms it:
+- plate_x / plate_z: 100% missing — the ball never crossed the plate
+- release_speed / pfx_x / pfx_z: 93.75% missing (15 of 16)
+
+The umpire awarded a ball; no pitch was physically delivered. This is
+**"no pitch occurred"**, categorically different from "classification
+failed".
+
+**One of the 16 is different (game_pk 746974, 7th, AB 47, pitch 3):**
+release_speed 83.0, pfx_x -1.54, pfx_z -0.28 — the ball DID leave the
+hand, with a breaking-ball trajectory. But plate_x / plate_z are still
+missing and pitch_type is still unclassified.
+
+Two candidate explanations, neither confirmable from this data alone:
+(a) the clock expired mid-delivery, so the pitch was voided and plate
+crossing was never recorded; (b) partial tracking failure, where
+Hawk-Eye caught release but lost the ball before the plate.
+
+Treated the same as the other 15 (excluded — no plate location means no
+location features, and no swing means it never enters the whiff model),
+but flagged separately.
+
+**Monitoring rule for multi-season work:** count rows with release data
+present but plate data absent, as a separate category. A spike in that
+rate by park or season is a tracking-system signal, not a rules
+artifact.
+
+### Three distinct kinds of missingness — do not conflate
+
+| Kind | Example | Handling |
+|---|---|---|
+| Structural | launch_speed on a non-batted pitch | Normal. Never impute |
+| No pitch | all physics on automatic_ball | Exclude the row entirely |
+| Tracking failure | 1 batted ball with no launch_speed | Log it, monitor rate |
+
+Tracking failure is a data-quality signal. If its rate spikes in a
+particular park or season, that is itself a finding.
+
+**Practical note:** these 16 rows are already excluded from whiff
+modeling by the `is_swing` filter (0 swings). That is a happy accident
+until you know why — now we do.
+
+**Cross-season warning:** `automatic_ball` does not exist before 2023.
+Missing `pitch_type` in earlier seasons will mean genuine
+classification failure instead. The same missingness can have different
+causes in different seasons.
