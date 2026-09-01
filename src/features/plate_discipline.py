@@ -60,3 +60,34 @@ def whiff_rate(df: pd.DataFrame) -> float:
 def swinging_strike_rate(df: pd.DataFrame) -> float:
     """Whiffs / total pitches. Different denominator from whiff_rate."""
     return add_swing_flags(df)["is_whiff"].mean()
+
+
+def _sql_in_list(values: frozenset[str]) -> str:
+    """Render a frozenset as a deterministic SQL IN-list.
+
+    Sorted so the generated SQL is stable across runs — unsorted set
+    iteration would produce a different string each time, which makes
+    query caching and diffs useless.
+    """
+    quoted = ", ".join(f"'{v}'" for v in sorted(values))
+    return f"({quoted})"
+
+
+def swing_sql(column: str = "description") -> str:
+    """SQL boolean expression that is true when a swing occurred."""
+    return f"{column} IN {_sql_in_list(SWING_DESCRIPTIONS)}"
+
+
+def whiff_sql(column: str = "description") -> str:
+    """SQL boolean expression that is true when the batter swung and missed."""
+    return f"{column} IN {_sql_in_list(WHIFF_DESCRIPTIONS)}"
+
+
+def swing_count_sql(column: str = "description", alias: str = "swings") -> str:
+    """Conditional-count fragment for a SELECT list."""
+    return f"SUM(CASE WHEN {swing_sql(column)} THEN 1 ELSE 0 END) AS {alias}"
+
+
+def whiff_count_sql(column: str = "description", alias: str = "whiffs") -> str:
+    """Conditional-count fragment for a SELECT list."""
+    return f"SUM(CASE WHEN {whiff_sql(column)} THEN 1 ELSE 0 END) AS {alias}"

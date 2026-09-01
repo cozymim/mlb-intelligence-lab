@@ -59,3 +59,27 @@ def test_input_is_not_mutated():
 def test_missing_description_raises():
     with pytest.raises(KeyError):
         add_swing_flags(pd.DataFrame({"pitch_type": ["FF"]}))
+
+def test_sql_fragments_are_deterministic():
+    """Unsorted set iteration would break query caching and diffs."""
+    from src.features.plate_discipline import swing_sql
+    assert swing_sql() == swing_sql()
+
+
+def test_sql_lists_match_the_python_sets():
+    """The generated SQL must contain exactly the documented values."""
+    from src.features.plate_discipline import (
+        SWING_DESCRIPTIONS, WHIFF_DESCRIPTIONS, swing_sql, whiff_sql,
+    )
+    for v in SWING_DESCRIPTIONS:
+        assert f"'{v}'" in swing_sql()
+    for v in WHIFF_DESCRIPTIONS:
+        assert f"'{v}'" in whiff_sql()
+    # foul_tip is a swing but must never appear as a whiff
+    assert "'foul_tip'" in swing_sql()
+    assert "'foul_tip'" not in whiff_sql()
+
+
+def test_sql_uses_the_given_column_name():
+    from src.features.plate_discipline import swing_sql
+    assert swing_sql("d") .startswith("d IN (")

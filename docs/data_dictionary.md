@@ -308,3 +308,48 @@ until you know why — now we do.
 Missing `pitch_type` in earlier seasons will mean genuine
 classification failure instead. The same missingness can have different
 causes in different seasons.
+
+---
+
+## Multi-date observations (2024-04-15, 06-15, 08-15; 10,654 pitches)
+
+### Game counts vary widely by date
+| Date | Pitches | Games | Pitches/game |
+|---|---|---|---|
+| 2024-04-15 | 4,362 | 15 | 291 |
+| 2024-06-15 | 4,145 | 14 | 296 |
+| 2024-08-15 | 2,147 | 7 | 307 |
+
+Aug 15 looks like a data failure at first glance (half the volume) but
+is not: only 7 games were played. Per-game rates are normal across all
+three dates. **When a total looks wrong, change the denominator before
+concluding the pipeline is broken.**
+
+### Pitch-type value set is not stable across dates
+`PO` (pitchout) appeared once in the 3-date sample but was absent from
+the single-day sample. Combined with ST/SV being 2023 additions, this
+confirms that `pitch_type` values must be handled defensively when
+pooling dates or seasons.
+
+**Open decision (before Week 5):** policy for rare pitch types —
+exclude, bucket as OTHER, or apply a minimum-pitch threshold.
+
+### Selection bias in pitch-type aggregates
+| Type | Pitches | Pitchers | Per pitcher | Whiff% |
+|---|---|---|---|---|
+| FF | 3541 | 199 | 17.8 | 17.5% |
+| SL | 1407 | 140 | 10.1 | 31.5% |
+| FS | 385 | 36 | 10.7 | 33.8% |
+| KC | 217 | 21 | 10.3 | — |
+
+Four-seam whiff rate reflects ~199 pitchers, i.e. close to the league.
+Splitter whiff rate reflects only 36 — and those 36 are not a random
+sample, they are pitchers who can throw a splitter at all.
+
+Note that `per_pitcher` is similar across non-fastball types (~10), so
+the bias does not come from a few pitchers throwing a lot. It comes
+from **who throws the pitch at all**.
+
+**Implication for Week 4:** compute whiff rate per pitcher, then average
+across pitchers, and compare to the pitch-level pooled rate. The gap
+between the two estimates the size of the selection effect.
