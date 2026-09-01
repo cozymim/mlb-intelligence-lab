@@ -62,6 +62,34 @@ Conflating them is a common error.
 
 ---
 
+## Leakage prevention
+
+Two independent guards, both enforced in code rather than by discipline.
+
+**Temporal.** All splitting goes through `src/utils/temporal.py`, which
+splits by date and refuses any split where training data reaches the
+start of a later partition. Demonstrated on the current sample: a random
+80/20 split puts all three dates on both sides — training on August to
+predict April — while the temporal split shares no date at all.
+
+**Feature-level.** `src/utils/leakage.py` bans columns that are not
+knowable at the prediction timestamp. For pitch-outcome prediction that
+removes 41 of 119 columns: 26 post-outcome, 9 identifiers, 6 empty. The
+guard runs on the feature matrix immediately before fitting and names
+every offender.
+
+The same column can be legal or illegal depending on the problem —
+`launch_speed` is leakage for pitch-outcome prediction but a legitimate
+feature for next-season projection — so bans are defined per problem,
+not globally.
+
+Known gap, documented rather than hidden: column-level guards cannot
+catch derived-feature leakage. A feature named `batter_slider_whiff_rate`
+looks harmless but leaks if computed over the full dataset. Rolling,
+as-of-date aggregation is the highest-priority open item.
+
+See [`docs/modeling_policy.md`](docs/modeling_policy.md).
+
 ## Findings so far
 
 **Whiff rate falls as balls accumulate in two-strike counts.**
@@ -114,7 +142,7 @@ are never edited or overwritten.
 | Weeks | Focus |
 |---|---|
 | 1 | Data foundation (done) |
-| 2 | Ingestion pipeline, DuckDB + SQL, temporal split and leakage utilities |
+| 2 | Ingestion pipeline, DuckDB + SQL, temporal split and leakage utilities (done) |
 | 3-4 | Batter and pitcher analytics |
 | 5 | Pitch quality model, P(Whiff given Swing) |
 | 6-8 | Player evaluation and a performance projection system |
