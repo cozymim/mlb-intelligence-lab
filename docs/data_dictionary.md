@@ -617,3 +617,78 @@ by `test_barrels_are_not_a_subset_of_sweet_spot`.
 Barrel% uses BBE as the denominator, so a high-strikeout hitter can post
 an excellent Barrel% while producing little. Barrel per PA must be
 reported alongside it. Baseball Savant publishes both for this reason.
+
+---
+
+## Sample size thresholds — measured, not guessed (2026-09-01)
+
+Earlier thresholds (30 swings on Day 5, 500 pitches on Day 14) were
+arbitrary. These are measured by split-half correlation: give each
+batter two disjoint random samples of n opportunities, compute the rate
+in each half, correlate across batters. The threshold is where r reaches
+about 0.7.
+
+| Metric | Denominator | r at 25 | 50 | 100 | 200 | Threshold |
+|---|---|---|---|---|---|---|
+| Chase% | out-of-zone pitches | 0.36 | 0.49 | 0.61 | 0.75 | 200 |
+| Zone Swing% | in-zone pitches | 0.21 | 0.38 | 0.57 | 0.73 | 200 |
+| Zone Contact% | zone swings | 0.26 | 0.45 | 0.65 | 0.78 | 200 |
+| HardHit% | BBE | 0.33 | 0.53 | **0.72** | — | 100 |
+| Barrel% | BBE | 0.23 | 0.47 | 0.65 | (0.74 at 150) | 150 |
+
+**Rate of occurrence drives stabilisation speed.** HardHit% (39% of BBE)
+stabilises fastest; Barrel% (7.8%) slowest. Same denominator, different
+reliability — a single global threshold is wrong.
+
+**Our earlier thresholds were too low.** The Day 5 minimum of 30 swings
+sits around r = 0.3-0.4, essentially noise. That is the quantitative
+explanation for why Knuckle Curve topped the whiff leaderboard on 60
+swings.
+
+Enforced by `src/features/sample_size.py`, which returns
+INSUFFICIENT SAMPLE rather than an unsupported number.
+
+## Batter metric correlation structure (425 batters, 500+ pitches)
+
+|  | Chase | ZSwing | ZContact | Barrel | HardHit | SweetSpot |
+|---|---|---|---|---|---|---|
+| Chase% | 1.00 | 0.52 | -0.02 | -0.07 | -0.05 | -0.11 |
+| Zone Swing% | 0.52 | 1.00 | -0.31 | 0.16 | 0.14 | 0.09 |
+| Zone Contact% | -0.02 | -0.31 | 1.00 | **-0.49** | -0.31 | -0.06 |
+| Barrel% | -0.07 | 0.16 | -0.49 | 1.00 | **0.78** | 0.27 |
+| HardHit% | -0.05 | 0.14 | -0.31 | 0.78 | 1.00 | 0.09 |
+| SweetSpot% | -0.11 | 0.09 | -0.06 | 0.27 | 0.09 | 1.00 |
+
+**Three roughly independent axes emerge:**
+
+1. **Plate discipline** — Chase% and Zone Swing% (r = 0.52, one axis)
+2. **Contact** — Zone Contact%
+3. **Power** — Barrel% OR HardHit%, not both (r = 0.78 is redundancy;
+   including both double-weights power)
+
+**Contact and power trade off** (r = -0.49). They must stay separate
+axes: collapsing them into one score cancels the signal.
+
+**Plate discipline is orthogonal to contact quality** (|r| <= 0.11
+against every batted-ball metric). It carries genuinely separate
+information.
+
+Sweet Spot% is nearly independent of everything (max |r| = 0.27) and is
+a candidate fourth axis.
+
+**This is the evidence base for Week 6 weighting.** CLAUDE.md forbids
+arbitrary weights; correlation structure is the justification.
+
+### Same score, different player
+
+Judge (chase 0.179, barrel 0.270) and Kerry Carpenter (chase 0.326,
+barrel 0.178) both rank highly on power but arrive by opposite routes.
+As with discipline_gap, a composite score must be reported alongside its
+components.
+
+### Leaderboard validates the pipeline
+
+Top barrel rates (min 100 BBE): Judge 27.0%, Ohtani 21.8%, Stanton
+20.9%, Soto 19.8% — against a league mean of 7.8%. These are the
+players one would expect, which is meaningful confirmation that the
+metric chain is correct end to end.
