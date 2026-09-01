@@ -71,3 +71,23 @@ def test_pipeline_rejects_a_leaked_column(df):
         banned=wider, context="integration",
     )
     assert "release_speed" not in features["train"].columns
+
+
+def test_coordinate_columns_are_numeric(df):
+    """Empty snapshots (All-Star break) once promoted these to object.
+
+    Invisible at 3 dates, immediate at full season. Object-dtype
+    coordinates break groupby aggregation with NAType errors and make
+    describe() report categories instead of statistics.
+    """
+    import pandas.api.types as ptypes
+
+    for col in ["plate_x", "plate_z", "sz_top", "sz_bot",
+                "release_speed", "launch_speed", "balls", "strikes"]:
+        assert ptypes.is_numeric_dtype(df[col]), f"{col} is {df[col].dtype}"
+
+
+def test_numeric_coercion_did_not_destroy_data(df):
+    """errors="coerce" is a real risk of silent data loss."""
+    assert df["plate_x"].notna().mean() > 0.99
+    assert df["release_speed"].between(50, 110).mean() > 0.98

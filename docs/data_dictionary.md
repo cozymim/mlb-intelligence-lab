@@ -353,3 +353,120 @@ from **who throws the pitch at all**.
 **Implication for Week 4:** compute whiff rate per pitcher, then average
 across pitchers, and compare to the pitch-level pooled rate. The gap
 between the two estimates the size of the selection effect.
+
+---
+
+## Full-season load: dtype corruption from empty snapshots (2026-09-01)
+
+**Symptom.** After scaling from 3 dates to a full 2024 season (710,632
+pitches, 186 files), `plate_x`, `plate_z`, `sz_top`, `sz_bot`, and
+`zone` all loaded as object dtype. `groupby().std()` raised
+`TypeError: float() argument must be ... not 'NAType'`, and
+`describe()` reported unique/top/freq instead of mean/std — silently
+treating pitch coordinates as categories.
+
+**Cause.** 4 of 186 files had 0 rows (days with no games, including the
+All-Star break on 2024-07-15). Pandas cannot infer a dtype from zero
+rows, so those files stored every column as object. `pd.concat` then
+promoted the entire 710k-row dataset to object.
+
+**Four empty files corrupted 182 good ones.**
+
+**Fix — two layers, both applied:**
+1. `load_all_snapshots` skips zero-row frames before concatenating
+   (removes this cause).
+2. `coerce_numeric` forces known-numeric columns with
+   `errors="coerce"` (defends against causes not yet seen, e.g.
+   partially-null columns).
+
+**Tests added:** `test_coordinate_columns_are_numeric` asserts dtypes
+after loading, and `test_numeric_coercion_preserves_values` asserts
+coercion did not silently null out data — `errors="coerce"` is a real
+risk of quiet data loss.
+
+**Lesson.** This was invisible at 3 dates and appeared immediately at
+full season. Scale changes what fails. Integration tests must run
+against the real data volume, not a toy sample.
+
+---
+
+## Strike zone definition (decided 2026-09-01)
+
+### Definition used
+
+    in_zone = |plate_x| <= 0.83
+              AND plate_z >= sz_bot - 0.121
+              AND plate_z <= sz_top + 0.121
+
+Batter-specific vertical bounds from Statcast's `sz_top` / `sz_bot`,
+with a ball radius added on every side — a pitch is a strike if any
+part of the ball touches the zone.
+
+`HALF_PLATE_FT = 0.83` — half the 17-inch plate plus a ball radius.
+Confirmed empirically: Statcast zones 1-9 span exactly ±0.83.
+
+`BALL_RADIUS_FT = 0.121` — 2.9-inch ball diameter / 2.
+
+### The vertical ball radius mattered a great deal
+
+Omitting it (bounds exactly sz_bot to sz_top) was an asymmetry: the
+horizontal bound already had the ball radius folded into HALF_PLATE.
+
+| Version | In-zone % | Disagreements with Statcast |
+|---|---|---|
+| Without vertical ball radius | 45.5% | 28,662 |
+| With vertical ball radius | 49.7% | **932 (0.13%)** |
+
+The 932 remaining disagreements are all boundary cases: median distance
+from the nearest boundary is 0.005 ft, maximum 0.034 ft — about 14% of
+a ball's diameter. Pure floating-point and constant rounding. All 932
+have Statcast zone 11-14, meaning our definition is marginally more
+generous at the edge.
+
+**We have effectively reconstructed Statcast's `zone` computation.**
+
+### Why not just use the `zone` column
+
+It is a black box: the computation is undocumented and may change
+between seasons. Our definition is explicit, versioned, and tested,
+which is what reproducibility requires. The `zone` column is retained
+as a cross-check.
+
+### Batter-specific bounds matter
+
+Across batters with >=20 pitches, mean `sz_top` ranges from 2.86 to
+4.03 ft — a 1.17 ft (36 cm) spread, about five ball diameters. A fixed
+rectangle would misclassify tall batters' high strikes as balls and
+short batters' high balls as strikes, inflating the shorter batter's
+Chase%.
+
+Within-batter standard deviation is 0.06-0.09 ft. Not zero, so the zone
+is not purely a function of height — stance and per-pitch measurement
+vary.
+
+### Umpires do not call the rulebook zone
+
+Agreement between a geometric definition and actual ball/called-strike
+calls, on 2024 taken pitches:
+
+| Definition | Agreement |
+|---|---|
+| Statcast zone 1-9 | 92.3% |
+| Fixed rectangle | 92.1% |
+| Batter-specific + ball radius | 92.2% |
+
+All three land near 92%. **No geometric definition exceeds it**, which
+means the ~8% gap is not a definitional error — it is framing, count
+effects, and umpire tendency.
+
+That gap is a measurement target, not noise. Candidate research
+question: how much does the effective called zone shift by count? This
+connects to the unexplained count/whiff pattern logged on 2026-08-31.
+
+### Scope
+
+This definition is for **batter evaluation** (Chase%, Zone Swing%,
+Zone Contact%), where the question is whether the hitter swung at a
+pitch that was not a strike by rule. Framing analysis would need the
+umpire's effective zone instead; pitcher command would need intended
+location. Different questions, different zones.

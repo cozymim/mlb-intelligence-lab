@@ -25,6 +25,41 @@ from src.utils.leakage import check_features, safe_features
 from src.utils.temporal import TemporalSplit, split_by_date
 
 
+# Columns that must be numeric. Skipping empty snapshots removes the
+# known cause of object-dtype promotion, but this is the second line of
+# defence against causes not yet seen (a partially-null column, an
+# upstream schema change).
+NUMERIC_COLUMNS = [
+    "plate_x", "plate_z", "sz_top", "sz_bot", "zone",
+    "release_speed", "release_pos_x", "release_pos_z",
+    "release_spin_rate", "release_extension", "effective_speed",
+    "pfx_x", "pfx_z", "spin_axis",
+    "launch_speed", "launch_angle", "hit_distance_sc",
+    "balls", "strikes", "outs_when_up", "inning",
+    "at_bat_number", "pitch_number", "game_pk",
+    "estimated_ba_using_speedangle",
+    "estimated_slg_using_speedangle",
+    "estimated_woba_using_speedangle",
+    "woba_value", "woba_denom", "babip_value", "iso_value",
+    "delta_run_exp", "delta_home_win_exp",
+]
+
+
+def coerce_numeric(df: pd.DataFrame, columns: list[str] | None = None) -> pd.DataFrame:
+    """Force known-numeric columns to a numeric dtype.
+
+    errors="coerce" turns unparseable values into NaN rather than
+    raising. That is deliberate: the alternative is a silent object
+    column that breaks aggregation much later, far from the cause. The
+    risk of quiet data loss is covered by a test.
+    """
+    out = df.copy()
+    for col in (columns or NUMERIC_COLUMNS):
+        if col in out.columns:
+            out[col] = pd.to_numeric(out[col], errors="coerce")
+    return out
+
+
 def load_all_snapshots(root: Path | None = None) -> pd.DataFrame:
     """Every raw snapshot, concatenated and sorted into pitch order.
 
@@ -42,8 +77,17 @@ def load_all_snapshots(root: Path | None = None) -> pd.DataFrame:
     if not newest_by_date:
         raise FileNotFoundError(f"no snapshots found in {raw}")
 
-    frames = [pd.read_parquet(p) for p in newest_by_date.values()]
+    # Empty snapshots (days with no games, e.g. the All-Star break) are
+    # stored with object dtype because pandas cannot infer types from
+    # zero rows. Concatenating them promotes every numeric column to
+    # object across the whole dataset — 4 empty files corrupted 182 good
+    # ones before this was caught. Skip them.
+    frames = [f for f in (pd.read_parquet(p) for p in newest_by_date.values())
+              if len(f) > 0]
+    if not frames:
+        raise ValueError("all snapshots are empty")
     df = pd.concat(frames, ignore_index=True)
+    df = coerce_numeric(df)
     return sort_chronologically(df)
 
 
