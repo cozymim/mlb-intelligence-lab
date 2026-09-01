@@ -90,6 +90,57 @@ as-of-date aggregation is the highest-priority open item.
 
 See [`docs/modeling_policy.md`](docs/modeling_policy.md).
 
+## Batter analytics
+
+Metrics are defined once in `src/features/`, covered by tests, and
+validated against published league values.
+
+**Strike zone.** Batter-specific vertical bounds from `sz_top`/`sz_bot`
+plus a ball radius on every side. Validated against Statcast's own
+`zone` column on 710,632 pitches: 932 disagreements (0.13%), all within
+0.034 ft of a boundary. Omitting the vertical ball radius produced
+28,662 disagreements — the asymmetry mattered.
+
+**League values, 2024 season.** Chase% 28.2, Zone Swing% 67.4,
+Contact% 76.8, Zone Contact% 84.7, Barrel% 7.8, HardHit% 39.0,
+average exit velocity 88.3 mph. All within about a point of published
+figures, which validates the swing and zone definitions independently.
+
+**Sample thresholds are measured, not guessed.** Split-half correlation
+gives the point where each metric reaches r ~ 0.7: HardHit% at 100
+batted balls, Barrel% at 150, Chase% and Zone Contact% at 200
+opportunities. Barrel% stabilises slowest because barrels are rare.
+Rates below their threshold return INSUFFICIENT SAMPLE rather than a
+number the data cannot support.
+
+**Correlation structure drives evaluation design.** Barrel% and
+HardHit% correlate at 0.78 — including both would double-weight power.
+Contact and power trade off at -0.49 and must stay separate axes.
+Plate discipline is orthogonal to contact quality (|r| <= 0.11). This
+is the evidence base for weighting a batter score, rather than picking
+weights by feel.
+
+## As-of-date features
+
+Column-level guards cannot catch derived-feature leakage: a feature
+named `batter_chase_pct` looks harmless but contains the pitch being
+predicted if computed over the full season.
+
+`src/features/rolling.py` aggregates by game date using strictly
+earlier dates, and shrinks toward the league mean with a regression
+constant set to each metric's measured stabilization threshold.
+
+Verified on 2024: a player's first game date returns exactly one value,
+the league mean — no same-day leakage. Cross-player spread grows from
+0.023 in April to 0.042 in September as evidence accumulates.
+
+The feature earns its place: predicting September Chase% using only
+data through August gives MAE 0.0377 against 0.0554 for a league-mean
+baseline, a 32% improvement. **Baselines apply to features, not just
+models.**
+
+---
+
 ## Findings so far
 
 **Whiff rate falls as balls accumulate in two-strike counts.**
@@ -143,7 +194,8 @@ are never edited or overwritten.
 |---|---|
 | 1 | Data foundation (done) |
 | 2 | Ingestion pipeline, DuckDB + SQL, temporal split and leakage utilities (done) |
-| 3-4 | Batter and pitcher analytics |
+| 3 | Batter analytics (done) |
+| 4 | Pitcher analytics |
 | 5 | Pitch quality model, P(Whiff given Swing) |
 | 6-8 | Player evaluation and a performance projection system |
 | 9-10 | Scouting reports, player similarity |
