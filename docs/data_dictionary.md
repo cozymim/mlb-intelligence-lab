@@ -465,3 +465,76 @@ Contact%), where the question is whether the hitter swung at a pitch
 that was not a strike by rule. Framing analysis would need the umpire's
 effective zone; pitcher command would need intended location. Different
 questions, different zones.
+
+---
+
+## player_name is the PITCHER (verified 2026-09-01)
+
+Statcast's `player_name` column holds the pitcher's name on every row,
+regardless of whether the row is being analysed from the batter's side.
+
+Verified: batter 663757 paired with pitcher 592332 carries
+player_name "Gausman, Kevin" — the pitcher.
+
+Attaching `player_name` to a batter profile mislabels the player
+silently. No error, no warning, just wrong names in a scouting report.
+
+**Batter names come from the Chadwick register** via
+`playerid_reverse_lookup(ids, key_type="mlbam")`, cached in
+`data/external/player_ids.csv` (25 KB, committed).
+
+The crosswalk also carries `key_retro`, `key_bbref`, and
+`key_fangraphs`, which will be needed to join FanGraphs or Baseball
+Reference data — and for linking players across sources in the KBO
+research.
+
+## Plate discipline metrics — league values (2024, 710,632 pitches)
+
+| Metric | Value | Numerator / Denominator |
+|---|---|---|
+| Zone% | 49.5% | in-zone pitches / all pitches |
+| Swing% | 47.6% | swings / all pitches |
+| Chase% | 28.2% | swings out of zone / pitches out of zone |
+| Zone Swing% | 67.4% | swings in zone / pitches in zone |
+| Contact% | 76.8% | contact / swings |
+| Zone Contact% | 84.7% | contact on zone swings / zone swings |
+| Whiff% | 23.2% | whiffs / swings |
+
+All within ~1 point of published 2024 league values, which validates
+both the Day 4 swing definitions and the Day 13 zone definition
+independently.
+
+### Chase% is not purely plate discipline
+
+Across 425 batters with 500+ pitches:
+
+| Correlation | Value |
+|---|---|
+| Chase% vs Zone Swing% | **+0.52** |
+| Chase% vs Zone Contact% | -0.02 |
+
+**Aggressive hitters swing more at everything.** A low Chase% may mean
+good eye or may mean passivity. Reading it as "plate discipline" alone
+is wrong.
+
+**Plate discipline and bat control are independent** (r = -0.02). They
+must be separate axes in any batter evaluation score, not collapsed
+into one — collapsing them destroys information. This is direct
+evidence for how to weight a Batter Impact Score in Week 6.
+
+### discipline_gap (our metric, not official)
+
+    discipline_gap = zone_swing_pct - chase_pct
+
+Removes the shared aggression component. Correlates -0.52 with Chase%
+and +0.46 with Zone Swing%, so it is dominated by neither.
+
+**Known limitation:** identical gap values arise from opposite
+approaches. Corey Seager (0.794 zone swing / 0.267 chase) and DJ Stewart
+(0.662 / 0.141) both score 0.52 — one attacks hittable pitches, the
+other simply takes everything. The gap must always be reported
+alongside its two components.
+
+Labelled as an original metric per the three-tier policy. The concept is
+not novel; whether a specific public precedent exists has not been
+checked, and should be before publishing.
