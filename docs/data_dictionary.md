@@ -538,3 +538,82 @@ alongside its two components.
 Labelled as an original metric per the three-tier policy. The concept is
 not novel; whether a specific public precedent exists has not been
 checked, and should be before publishing.
+
+---
+
+## Batted ball quality (2024, verified 2026-09-01)
+
+Official definitions, taken from the MLB glossary, not reconstructed:
+
+| Metric | Definition |
+|---|---|
+| Hard Hit | exit velocity >= 95 mph |
+| Sweet Spot | launch angle 8-32 degrees |
+| Barrel | EV/LA combinations historically yielding >= .500 AVG and >= 1.500 SLG |
+
+### Barrel is not reimplemented, and cannot be
+
+MLB publishes the qualifying launch-angle band only at specific speeds:
+26-30 deg at 98 mph, 25-31 at 99, 24-33 at 100, and 8-50 at 116. Between
+100 and 116 it states the range grows "two to three degrees" per mph
+without specifying which. **The definition is not fully reconstructible
+from public documentation.**
+
+Statcast supplies the answer in `launch_speed_angle`, where 6 = Barrel.
+Verified against the published bands on 2024 data:
+
+| EV | n | Glossary band | Agreement |
+|---|---|---|---|
+| 98 | 4,646 | 26-30 | 98.3% |
+| 99 | 4,635 | 25-31 | 97.8% |
+| 100 | 4,407 | 24-33 | 98.5% |
+| 116 | 35 | 8-50 | 100.0% |
+
+`launch_speed_angle` codes, identified from the data rather than assumed:
+
+| Code | n | mean EV | mean LA | mean xwOBA |
+|---|---|---|---|---|
+| 1 | 5,509 | 47.7 | -16.1 | 0.18 |
+| 2 | 38,285 | 85.5 | -14.8 | 0.18 |
+| 3 | 32,269 | 86.0 | 46.1 | 0.08 |
+| 4 | 30,082 | 93.3 | 11.5 | 0.63 |
+| 5 | 7,761 | 101.2 | 23.6 | 0.59 |
+| **6 (Barrel)** | 9,698 | 104.7 | 26.1 | **1.23** |
+
+### The denominator is batted ball events, NOT any pitch with a launch_speed
+
+Fouls carry a measured `launch_speed` (mean 76.2 mph across 113,588
+fouls) but are not BBE. Including them wrecks every rate:
+
+| Metric | With fouls | BBE only | League reference |
+|---|---|---|---|
+| HardHit% | 23.8% | **39.0%** | 40-42% |
+| Avg EV | 82.5 | **88.3** | 88-89 |
+| SweetSpot% | 29.9% | **35.2%** | — |
+| Barrel% | 7.8% | 7.8% | 7-8% |
+
+Barrel% was unaffected only by accident: fouls have no
+`launch_speed_angle`, so they were already excluded from the numerator
+as well. Correct for the wrong reason until now.
+
+Filtering is enforced inside `batted_ball_events()` so callers cannot
+reintroduce fouls.
+
+6 of 123,610 `hit_into_play` rows lack `launch_speed_angle` (0.005%) —
+tracking failure, worth monitoring as a rate.
+
+### Barrels are NOT a subset of sweet-spot balls
+
+An initial assumption that every barrel lands in the 8-32 degree window
+was **wrong**. 1,306 of 9,698 barrels (13.5%) fall outside it: median
+launch angle 35 degrees, mean exit velocity 104.7 mph, max 120.4.
+
+The qualifying band widens with exit velocity, so very hard contact
+qualifies as a barrel well above 32 degrees (and as low as 4). Locked in
+by `test_barrels_are_not_a_subset_of_sweet_spot`.
+
+### Denominator caveat for evaluation
+
+Barrel% uses BBE as the denominator, so a high-strikeout hitter can post
+an excellent Barrel% while producing little. Barrel per PA must be
+reported alongside it. Baseball Savant publishes both for this reason.
