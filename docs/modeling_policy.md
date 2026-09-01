@@ -115,3 +115,58 @@ average.
 computed strictly from data preceding the prediction timestamp.
 `expanding_window_splits()` is the basis for this. Not yet implemented —
 this is the highest-priority open item.
+## Derived-feature leakage — SOLVED (2026-09-01)
+
+This was the highest-priority open item from Week 2. Column-level guards
+cannot catch it: a feature named `batter_chase_pct` looks harmless, but
+computed over the full season it contains the very pitch being
+predicted, plus every pitch after it.
+
+### Solution: as-of-date aggregation with shrinkage
+
+`src/features/rolling.py`. Two design decisions:
+
+**Aggregate by DATE, not by row.** A player's rate for a game date uses
+strictly earlier dates. Same-day pitches are excluded, because in
+deployment that day's results are not compiled when the day's first
+pitch is thrown. Implemented as `cumsum() - current`, computed on
+player-date groups.
+
+**Shrink toward the league mean.** With 40 out-of-zone pitches a raw
+Chase% is noise (measured r ~ 0.45 at n=50 on Day 16). Shrinkage:
+
+    (observed * n + league_mean * regression_pa) / (n + regression_pa)
+
+`regression_pa` is set to the metric's measured stabilization threshold
+(200 for Chase%), so at n = 200 the estimate sits halfway between player
+and league.
+
+### Verification on 2024 (710,632 pitches)
+
+**No same-day leakage.** Aaron Judge's first game date (2024-03-28)
+returns exactly one distinct value across all his pitches: the league
+mean 0.282. Locked in by `test_same_day_pitches_do_not_see_each_other`.
+
+**Shrinkage behaves correctly.** Cross-player standard deviation rises
+from 0.0226 in April to 0.0420 in September as samples accumulate —
+still below the unshrunk full-season 0.059, which is correct, since
+shrinkage should never fully release.
+
+**The feature beats its baseline.** Predicting September Chase% for 366
+batters with 50+ September out-of-zone pitches, using only information
+through August:
+
+| Predictor | MAE |
+|---|---|
+| League mean (0.282) | 0.0554 |
+| As-of-date shrunk estimate | **0.0377** |
+
+32% improvement, correlation 0.762. A feature that failed to beat the
+league mean would be complexity without value and should be dropped.
+**Baselines apply to features, not only to models.**
+
+### Remaining work
+- [ ] Extend beyond Chase% to the other discipline and batted-ball rates
+- [ ] Pitcher-side equivalents
+- [ ] Decide whether to use expanding windows only, or add a recent-form
+      rolling window alongside them
