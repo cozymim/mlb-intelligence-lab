@@ -42,3 +42,28 @@ For the projection system, three baselines are required:
    mean, age adjustment)
 
 A model that does not beat Marcel is not a result. Report it honestly.
+
+## 2026-09-01 — Dashboard scope decision
+
+**System first, app as a thin window.**
+
+Every analysis function returns a DataFrame or dict. The dashboard calls
+those functions and displays results — no calculation logic lives in
+dashboard code. The system must be complete and defensible without the
+app; the app exists so a reader who will never open a notebook can see
+the work in 30 seconds.
+
+**Scope: 4-5 pages, not 12.** Batter profile, pitcher profile,
+projection, model performance, KBO research. Filled pages beat empty
+ones.
+
+**Model Performance page is mandatory and must not be sanitized.**
+Baselines, our model, calibration curve, train/val/test windows,
+feature list, limitations, and failures. This is where an R&D
+interviewer actually spends time. "XGBoost beat the lookup baseline by
+3%" told honestly is stronger than ten polished heatmaps.
+
+**Deploy it.** Streamlit Community Cloud. A link on a résumé is not the
+same as "clone and run locally." Constraint to design for now:
+deployment cannot carry full Statcast data, so the app must read small
+pre-aggregated Parquet files, not raw pitch data.

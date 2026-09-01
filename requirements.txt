@@ -6,4 +6,4 @@ pybaseball
 python-dotenv
 ipykernel
 matplotlib
-pytest
+pytestscikit-learn
