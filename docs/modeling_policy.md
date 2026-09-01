@@ -50,5 +50,68 @@ deployment and gives multiple evaluation points instead of one.
 ## Open items
 - [ ] Feature-level leakage checks (Day 11)
 - [ ] Banned-column list for pre-pitch models (Day 11)
-- [ ] Player-profile features must be computed from data strictly prior
-      to the prediction timestamp — not yet implemented
+- [ ] Player-profile features must be computed from data strictly prior to the prediction timestamp — not yet implemented
+
+## Feature-level leakage guards
+
+Temporal splitting prevents learning from the future. Feature guards
+prevent learning from the answer. Both are required.
+
+### The prediction timestamp decides everything
+
+A column is banned if its value is only knowable after the moment a
+prediction must be made. The same column can be legal or illegal
+depending on the problem: `launch_speed` is leakage for pitch-outcome
+prediction (the ball has already been hit) but a legitimate feature for
+next-season projection (it summarises last season's contact quality).
+
+Guards are therefore defined per problem in `src/utils/leakage.py`,
+never as one global blocklist.
+
+### Pitch-outcome guard — measured on the 3-date sample
+
+41 of 119 columns excluded:
+
+| Reason | Count |
+|---|---|
+| Post-outcome (leakage) | 26 |
+| Identifier / bookkeeping | 9 |
+| Empty in all seasons | 6 |
+
+78 columns remain available, and they match the pre-pitch feature list
+in CLAUDE.md: release_speed, pfx_x/pfx_z, plate_x/plate_z, balls,
+strikes, pitch_type, stand, p_throws, release_spin_rate,
+release_extension, base state, inning, outs.
+
+### Leaks that look harmless
+
+- **`type`** — the B/S/X summary. Innocuous name, but it is the answer.
+- **`estimated_woba_using_speedangle`** — "expected" does not mean
+  "pre-pitch". It is MLB's own model output, computed from exit velocity
+  and launch angle, i.e. entirely post-contact.
+- **`delta_run_exp` / `delta_home_win_exp`** — the outcome expressed as
+  a run/win value.
+- **`post_*_score`** — state after the pitch resolved.
+
+### Enforcement
+
+`check_features()` runs on the feature matrix immediately before
+fitting and raises `LeakageError` naming every offender.
+`safe_features()` drops banned columns and re-verifies, which catches
+the case where the ban list is extended but a cached feature matrix is
+not rebuilt.
+
+`describe_exclusions()` produces the excluded-column table with reasons,
+which goes directly into the model card.
+
+### NOT yet handled: derived-feature leakage
+
+Column-level guards cannot catch this. A feature named
+`batter_slider_whiff_rate` looks harmless, but if it is computed over
+the full dataset then the pitch being predicted is inside its own
+average.
+
+**Rule for Week 3 onward:** any player-profile aggregate must be
+computed strictly from data preceding the prediction timestamp.
+`expanding_window_splits()` is the basis for this. Not yet implemented —
+this is the highest-priority open item.
