@@ -194,3 +194,75 @@ measure, and a plausible story can be told about any of them.
 
 Ruling out this confound strengthens the null result rather than
 weakening it.
+
+---
+
+## 2026-09-01 — Why whiff rate falls as balls accumulate: SOLVED
+
+**Background.** On 2026-08-31 (single-day sample) whiff rate was found to
+decrease within two-strike counts: 0-2 25.0%, 1-2 20.9%, 2-2 19.1%,
+3-2 15.6%. This contradicted the prediction that two-strike counts would
+uniformly raise whiff rates. A hypothesis was logged: at 3-2 the pitcher
+must throw a strike and the hitter can take anything off the plate, so
+both sides push toward the zone.
+
+**Now testable** with 710,632 pitches and a validated zone definition.
+
+**Confirmed on the full season.** Within two-strike counts:
+
+| Count | Zone% | Whiff% |
+|---|---|---|
+| 0-2 | 32.5% | 25.7% |
+| 1-2 | 38.1% | 24.3% |
+| 2-2 | 46.8% | 21.1% |
+| 3-2 | **58.1%** | 17.2% |
+
+Zone rate rises 25.6 points and whiff rate falls monotonically against
+it. At 0-2 a pitcher throws two-thirds of pitches out of the zone — a
+ball costs nothing. At 3-2 he must put more than half in the zone.
+
+**The mechanism is composition, not a change in pitch quality.**
+Splitting swings by location largely dissolves the count effect:
+
+| Count | Whiff% out of zone | Whiff% in zone |
+|---|---|---|
+| 0-2 | 40.4% | 14.1% |
+| 1-2 | 38.9% | 13.9% |
+| 2-2 | 36.6% | 12.8% |
+| 3-2 | 31.8% | 12.0% |
+
+In-zone whiff rate moves only 2.1 points (14.1 to 12.0) while the
+overall rate moves 8.5. Whiff rate differs roughly 3x between the two
+regions (40% vs 14%), so shifting the mix between them dominates the
+aggregate.
+
+**This is a Simpson's-paradox-shaped result:** the effect inside each
+subgroup is small, but a change in subgroup composition moves the
+headline number substantially. A caution for every aggregate metric in
+this project.
+
+**A second, smaller effect is also present.** Mean distance from the
+centre of the zone (in-zone pitches only) falls with ball count:
+
+| | 0 strikes | 1 | 2 |
+|---|---|---|---|
+| 0 balls | 0.643 | 0.666 | 0.693 |
+| 3 balls | 0.623 | 0.627 | 0.632 |
+
+At 3-2 pitchers not only throw in the zone more often, they throw closer
+to the middle of it. That explains part of the residual 8.6-point drop
+in out-of-zone whiff rate as well: pitchers are attacking rather than
+expanding.
+
+**Aside — 3-0 is a distinct regime.** Swing rate 9.2% despite a 59.5%
+zone rate: one more ball is a walk, so hitters take even strikes. Whiff
+rate 12.7% rests on roughly 670 swings, far fewer than any other count.
+
+**Limitations.** Single season. Descriptive, not causal — this describes
+what pitchers and hitters do, not why. The centre-distance measure uses
+the midpoint of each batter's own zone, so it is comparable across
+batter heights, but it does not distinguish horizontal from vertical
+positioning.
+
+**Status.** Original hypothesis confirmed and mechanism identified. This
+is a candidate section for the Week 12 research writeup.
