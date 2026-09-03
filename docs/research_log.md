@@ -118,3 +118,79 @@ significantly higher at 3-2 than at 0-2? Use plate_x / plate_z.
 
 **Why this is recorded:** the prediction was wrong and the data won.
 This is exactly the kind of entry that belongs in a research log.
+---
+
+## 2026-09-01 — Release point consistency does NOT predict whiff rate
+
+**Question.** Does inconsistent release point across pitch types cost a
+pitcher swing-and-miss? The intuition: if a hitter can read the pitch
+type from the release, he stops being fooled.
+
+**Method.** For 473 pitchers with 500+ pitches, normalise release_pos_x
+for handedness, then decompose release scatter into:
+  between = spread of pitch-type mean release points
+  within  = typical scatter inside a single pitch type
+  ratio   = between / within  (signal-to-noise)
+
+Correlate each against whiff rate (200+ swings).
+
+**Result — no relationship whatsoever.**
+
+| Measure | r with whiff rate |
+|---|---|
+| ratio | 0.018 |
+| between | 0.014 |
+| within | 0.007 |
+
+Three different formulations, all essentially zero. This was not the
+expected direction; a weak negative correlation was anticipated.
+
+**Candidate explanations (untested):**
+- Reaction time. A 90 mph pitch arrives in ~0.4 s. Detecting a 0.15 ft
+  (4.5 cm) release difference and acting on it may be below human
+  perceptual limits in that window.
+- Offsetting effects. Pitchers whose release separates may also separate
+  more in velocity and movement, cancelling the tell.
+- Intent. High-ratio pitchers include Tyler Anderson and Drew Smyly, who
+  are known for varying arm slots deliberately. Variation is a strategy,
+  not a flaw.
+- **Signal below noise.** Mean `within` (0.223) exceeds mean `between`
+  (0.146); median ratio is 0.612. For most pitchers the between-pitch
+  difference is smaller than the ordinary scatter of a single pitch
+  type. There may be nothing for a hitter to read.
+
+The last explanation is the most concrete and is directly measurable in
+the numbers above.
+
+**Confound identified.** The lowest-ratio pitchers are almost all
+relievers (Helsley, Iglesias, Yates, Robertson, Brebbia, Green) and the
+highest are mostly starters (Musgrove, Imanaga, Stripling). Relievers
+carry 2-3 pitch types, so `between` has fewer centres to spread. The
+ratio may be measuring arsenal size rather than release consistency.
+Tested by correlating ratio against arsenal depth — see follow-up.
+
+**Limitations.** Correlation only; no causal claim. Release position is
+measured, not pitching mechanics — public tracking data does not support
+biomechanical conclusions. Single season.
+
+**Status.** Recorded as a null result. Reported rather than discarded:
+the absence of an effect that the sport widely assumes is itself
+informative, and hiding it would violate the project's modelling policy.
+
+**Follow-up: the arsenal-size confound was NOT real.**
+
+| Measure | r with arsenal size |
+|---|---|
+| ratio | 0.059 |
+| between | 0.077 |
+
+Mean ratio by arsenal size is flat: 0.62 (2 types), 0.69 (3), 0.69 (4),
+0.71 (5), 0.73 (6). No meaningful gradient.
+
+The reliever/starter split visible in the top-10 lists did not survive
+contact with the full distribution. **Reading a pattern off extreme
+values is unreliable** — in 473 pitchers, ten will be extreme for any
+measure, and a plausible story can be told about any of them.
+
+Ruling out this confound strengthens the null result rather than
+weakening it.
