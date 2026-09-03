@@ -98,3 +98,66 @@ coefficients between -0.08 and +0.06. These are almost certainly noise
 on tiny samples. The rare-pitch-type policy deferred on Day 8 (exclude,
 bucket as OTHER, or apply a minimum-count threshold) needs to be decided
 before the next model.
+
+## Rare pitch type policy (decided 2026-09-03)
+
+Training-set counts show a clear cliff:
+
+| Pitch | n |
+|---|---|
+| FF | 64,478 |
+| ... | ... |
+| KC | 3,052 |
+| SV | 847 |
+| KN | 312 |
+| FA | 160 |
+| EP | 107 |
+| FO | 66 |
+| CS | 14 |
+| **SC** | **6** |
+
+Model C assigned `SC x plate_z` a coefficient of -0.076 — essentially
+identical to `CU x plate_z` (-0.077), which rests on 10,705 swings. A
+six-swing estimate received the same weight as a ten-thousand-swing one.
+
+**Policy: pitch types with fewer than 500 training swings are bucketed
+as OTHER.** The threshold is placed between SV (847) and KN (312).
+
+This is a judgment call, not a measured stabilization threshold like
+those in `src/features/sample_size.py`, and is documented as such.
+
+**Bucketed rather than excluded.** Dropping the rows would leave the
+model unable to score a rare pitch type at prediction time. An OTHER
+bucket at least returns that group's mean.
+
+Interactions double the cost: each rare pitch type contributed two
+parameters (a dummy and an interaction term), so bucketing removes 12.
+
+### Result: 12 parameters removed, performance unchanged
+
+| Model | Features | Log Loss | Brier | AUC |
+|---|---|---|---|---|
+| Logistic C (all pitch types) | 43 | 0.47650 | 0.15088 | 0.72245 |
+| **Logistic D (bucketed)** | **31** | **0.47572** | **0.15080** | 0.72240 |
+
+Log loss improved by 0.00078 and AUC fell by 0.00005 — no meaningful
+difference either way. 665 swings (0.3%) changed bucket.
+
+**Those 12 parameters were doing nothing.** Confirmation that the SC
+coefficient on six swings was noise, and a demonstration that a simpler
+model at equal performance is the one to keep.
+
+**Model D is the accepted logistic model.**
+
+## Final standing
+
+| Model | Log Loss | vs baseline |
+|---|---|---|
+| Constant | 0.54072 | -11.4% |
+| Lookup + zone | 0.48524 | baseline |
+| Logistic A (linear) | 0.51151 | **-5.4% (loses)** |
+| Logistic D | **0.47572** | **+2.0%** |
+
+The honest summary: a logistic regression with a pitch-type by height
+interaction beats a well-constructed lookup table by 2%. The linear form
+loses to it outright.
