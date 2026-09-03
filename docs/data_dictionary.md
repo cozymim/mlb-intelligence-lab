@@ -692,3 +692,71 @@ Top barrel rates (min 100 BBE): Judge 27.0%, Ohtani 21.8%, Stanton
 20.9%, Soto 19.8% — against a league mean of 7.8%. These are the
 players one would expect, which is meaningful confirmation that the
 metric chain is correct end to end.
+
+---
+
+## Pitch types have different success criteria (2024, 710,632 pitches)
+
+### Whiff rate inverts the actual outcome ranking
+
+| Pitch | Whiff% | GB% | Barrel% | HardHit% | xwOBA |
+|---|---|---|---|---|---|
+| SI | 11.7% (last) | 57.0% (first) | 6.6% | 43.5% | 0.368 |
+| FF | 18.9% | 34.6% (last) | 10.0% | 44.7% | 0.392 (worst) |
+| SL | 32.3% | 43.3% | 7.2% | 34.8% | 0.361 |
+| CH | 29.3% | 51.1% | 6.1% | 32.0% | 0.347 |
+
+The four-seam whiffs 1.6x as often as the sinker and produces worse
+results. Ranking pitches by whiff rate reverses the true order.
+
+**Mechanism.** Sinkers are hit nearly as hard as four-seams (43.5% vs
+44.7% hard-hit) but barrel far less (6.6% vs 10.0%). They induce
+badly-angled contact, not weak contact. A hard ground ball is an out; a
+hard fly ball is a home run.
+
+**The four-seam's poor xwOBA does not make it a bad pitch.** It leads
+the league in zone rate (55.4%) and is thrown 30% of the time. Its role
+is to command the zone and set up everything else, and that value does
+not appear in its own outcome line. Another case of an aggregate metric
+failing to capture role, like the count composition effect from Day 21.
+
+### Four distinct success paths (standardised across pitch types)
+
+| Weapon | Pitch types |
+|---|---|
+| Ground balls | SI (gb z = +1.49, whiff z = -2.11) |
+| Pop-ups | FF, FC, ST, SV |
+| Swing-and-miss | SL, KC, CU |
+| Chase | CH, FS |
+
+CH and FS have the two lowest zone rates (39.0%, 37.2%) and the two
+highest chase rates. Throwing out of the zone and getting swings is the
+point of the pitch.
+
+### This systematically misranks real pitchers
+
+| Group | Whiff% | GB% | n |
+|---|---|---|---|
+| Sinker-heavy (35%+ usage) | 21.6% | 52.1% | 78 |
+| All others | 23.6% | 42.5% | 367 |
+
+78 of 445 qualified pitchers (17.5%) sit below league whiff rate while
+sitting 10 points above in ground-ball rate. A whiff-based ranking
+penalises them for doing their job.
+
+Enforced by `src/features/pitch_outcomes.py`, which reports all four
+dimensions rather than a single number.
+
+**Caveat on standardisation.** Z-scores are sensitive to how tightly
+pitch types cluster on each dimension. A pitch leading a low-variance
+dimension can outscore one leading a high-variance dimension by a wider
+margin. This did not affect the 2024 conclusions — the sinker's
+separation is unambiguous (gb z = +1.49, whiff z = -2.11) — but it could
+decide borderline cases.
+
+Two test-writing errors on this module are worth recording: hand-built
+test data was twice constructed without computing the resulting
+z-scores, and both times verified something other than what was
+intended. The second failure exposed a real bug — `primary_weapons`
+crashed with an opaque pandas `argmax of an empty sequence` error when
+given unrecognised column names. It now raises a clear KeyError.
