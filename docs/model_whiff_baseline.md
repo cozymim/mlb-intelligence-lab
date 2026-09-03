@@ -115,3 +115,50 @@ concluding.
 model is unlikely to beat 0.48524 by a wide margin. A result in the
 0.47-0.48 range would be honest and unremarkable, and will be reported
 as such.
+
+## plate_z reverses sign by pitch type — this decides the model class
+
+Correlation with whiff, computed WITHIN each pitch type on validation:
+
+| Pitch | plate_z | spin | velo | n |
+|---|---|---|---|---|
+| CU | **-0.468** | +0.042 | +0.053 | 4,615 |
+| SL | -0.384 | +0.039 | +0.027 | 12,168 |
+| FS | -0.367 | -0.099 | -0.072 | 2,915 |
+| ST | -0.323 | +0.044 | +0.050 | 5,737 |
+| CH | -0.299 | +0.015 | +0.004 | 9,157 |
+| FC | -0.093 | +0.024 | +0.003 | 6,883 |
+| SI | +0.011 | +0.015 | +0.037 | 12,142 |
+| **FF** | **+0.241** | +0.051 | +0.070 | 27,700 |
+
+**Breaking balls whiff when low; four-seams whiff when high.** The
+pooled figure of -0.177 is an average of opposite effects.
+
+This matches Day 22, which found the four-seam's primary weapon to be
+pop-ups (z = +1.54). High fastballs generate swing-and-miss and fly
+balls; breaking balls generate them below the zone.
+
+### Consequence for model selection
+
+A logistic regression has one coefficient for `plate_z` and cannot
+represent +0.241 and -0.468 simultaneously. The effects will partly
+cancel.
+
+Two remedies:
+- add an explicit `pitch_type x plate_z` interaction, or
+- use a tree-based model, which learns interactions automatically
+
+**This is a concrete justification for added complexity**, which
+CLAUDE.md requires. Not "boosting scores better" but "the sign of the
+location effect inverts by pitch type, and a linear model in plate_z
+cannot express that."
+
+### Spin and velocity are genuinely weak here
+
+Unlike plate_z, these do not recover within pitch type: spin ranges
++0.015 to +0.051 (FS the lone exception at -0.099), velocity +0.004 to
++0.070. The pooled velocity correlation of -0.103 was almost entirely
+"which pitch type is this", not velocity itself.
+
+Pooled correlations reliably contain composition effects — the same
+lesson as Day 21, Day 22, and Day 23.
