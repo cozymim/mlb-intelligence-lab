@@ -1,0 +1,33 @@
+{
+  "target": "P(whiff | swing)",
+  "train": {
+    "rows": 200735,
+    "start": "2024-03-28",
+    "end": "2024-07-14"
+  },
+  "validation": {
+    "rows": 83492,
+    "start": "2024-07-19",
+    "end": "2024-08-31"
+  },
+  "test": {
+    "rows": 54137,
+    "start": "2024-09-01",
+    "end": "2024-09-29"
+  },
+  "league_rate_train": 0.2301043664532842,
+  "lookup_keys": [
+    "pitch_type",
+    "balls",
+    "strikes",
+    "stand",
+    "p_throws"
+  ],
+  "lookup2_keys": [
+    "pitch_type",
+    "balls",
+    "strikes",
+    "in_zone_flag"
+  ],
+  "prior_strength": 50.0
+}
