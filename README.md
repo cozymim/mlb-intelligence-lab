@@ -141,6 +141,66 @@ models.**
 
 ---
 
+## Pitcher analytics
+
+**Movement is measured from the catcher's perspective**, so `pfx_x`
+flips sign with handedness. Verified across 2024: changeup +1.18 for
+lefties and -1.18 for righties, sinker +1.26 vs -1.24. Vertical movement
+does not flip. `src/features/arsenal.py` normalises to arm-side so both
+hands can be pooled.
+
+**Velocity separation and movement separation are independent.** Cole
+Ragans' changeup separates 10.6 mph from his fastball but only 0.51 in
+movement — a tunnelling pitch. Dylan Cease's slider separates 9.2 mph
+and 1.43 in movement — a contrast pitch. Combining them into one
+"separation" number would erase the distinction.
+
+**Whiff rate is the wrong sole criterion for a pitch.** The sinker has
+the lowest whiff rate in baseball (11.7%) and the highest ground-ball
+rate (57.0%), and produces a better xwOBA (0.368) than the four-seam
+(0.392), which whiffs 1.6x more often. Ranking pitches by whiff rate
+reverses the true outcome order.
+
+Standardising outcomes across pitch types reveals four success paths:
+ground balls (SI), pop-ups (FF, FC, ST), swing-and-miss (SL, KC, CU),
+and chase (CH, FS). 78 of 445 qualified pitchers throw 35%+ sinkers and
+sit below league whiff rate while sitting 10 points above in ground-ball
+rate. A whiff-based ranking penalises 17.5% of pitchers for doing their
+job.
+
+## Research findings
+
+Three questions answered, recorded in
+[docs/research_log.md](docs/research_log.md) with methods and
+limitations.
+
+**Why whiff rate falls as balls accumulate — solved.** Within two-strike
+counts, whiff rate drops from 25.7% at 0-2 to 17.2% at 3-2. The cause is
+composition, not pitch quality: zone rate rises from 32.5% to 58.1%, and
+whiff rate differs roughly 3x between in-zone (14%) and out-of-zone
+(40%) swings. Splitting by location shrinks the in-zone effect to 2.1
+points. A Simpson's-paradox-shaped result, and a caution for every
+aggregate in this project.
+
+**Does velocity separation improve offspeed whiff rate — half true.**
+Pooled across pitch types the correlation is 0.552; within pitch type
+and controlling for fastball velocity it ranges from +0.49 (splitter)
+to -0.21 (sinker). More than half the pooled figure was pitch-type
+composition. The effect is real for splitters, cutters, sliders and
+changeups, absent for sweepers, curveballs and four-seams. For sinkers
+the variable measures stuff decay rather than separation — the same
+feature means different things for different pitch types.
+
+**Does release-point consistency predict whiff rate — no.** Across 473
+pitchers, three different formulations all correlate at r < 0.02 with
+whiff rate. A suspected arsenal-size confound was tested and ruled out.
+The most concrete explanation is that within-pitch-type release scatter
+(0.223) exceeds between-pitch-type separation (0.146): for most
+pitchers there may be nothing for a hitter to read. Reported as a null
+result rather than discarded.
+
+---
+
 ## Findings so far
 
 **Whiff rate falls as balls accumulate in two-strike counts.**
@@ -195,7 +255,7 @@ are never edited or overwritten.
 | 1 | Data foundation (done) |
 | 2 | Ingestion pipeline, DuckDB + SQL, temporal split and leakage utilities (done) |
 | 3 | Batter analytics (done) |
-| 4 | Pitcher analytics |
+| 4 | Pitcher analytics (done) |
 | 5 | Pitch quality model, P(Whiff given Swing) |
 | 6-8 | Player evaluation and a performance projection system |
 | 9-10 | Scouting reports, player similarity |
