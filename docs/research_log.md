@@ -266,3 +266,86 @@ positioning.
 
 **Status.** Original hypothesis confirmed and mechanism identified. This
 is a candidate section for the Week 12 research writeup.
+
+---
+
+## 2026-09-01 — Does fastball velocity separation improve offspeed whiff rate?
+
+**Question.** One of the original research candidates in CLAUDE.md.
+
+**Data.** 2024 season, 1,216 (pitcher, pitch type) pairs with 50+ swings.
+For each secondary pitch: velo_gap and move_gap from the pitcher's
+primary fastball, plus that fastball's velocity as a control.
+
+### The naive answer is badly wrong
+
+Pooled across pitch types: **r = 0.552**.
+
+Within pitch type: **r = 0.07 to 0.50**, varying by pitch.
+
+More than half the pooled correlation is pitch-type composition.
+Curveballs separate more AND whiff more, so pooling makes separation
+look causal when it is partly just "which pitch is this". Same structure
+as the count/location composition effect from Day 21.
+
+### Fastball velocity is a genuine confound
+
+velo_gap correlates with fastball velocity at r = 0.19 to 0.60,
+strongest for fastball-family pitches (SI 0.598, FF 0.544, ST 0.467).
+Harder throwers separate more by construction.
+
+### Result after controlling for fastball velocity
+
+| Pitch | n | raw r | controlled r |
+|---|---|---|---|
+| FS splitter | 58 | +0.498 | **+0.487** |
+| FC cutter | 121 | +0.423 | **+0.361** |
+| SL slider | 299 | +0.306 | +0.242 |
+| CH changeup | 216 | +0.279 | +0.215 |
+| ST sweeper | 151 | +0.128 | +0.006 |
+| CU curveball | 117 | +0.070 | +0.011 |
+| FF four-seam | 78 | +0.074 | -0.042 |
+| SI sinker | 134 | -0.058 | **-0.205** |
+
+**The premise is half true.** Velocity separation helps splitters,
+cutters, sliders and changeups. It does nothing for sweepers,
+curveballs or four-seams, and is mildly negative for sinkers.
+
+### Hypothesis for the split (untested)
+
+Pitches that benefit (FS, CH, SL, FC) look like the fastball out of the
+hand and deceive with speed. Pitches that do not (CU, ST) are visually
+distinct immediately — Day 19 measured curveball pfx_z at -0.84 and
+sweeper pfx_x at +1.16, both extreme. If the hitter identifies the pitch
+at release, adding velocity separation has nothing left to hide.
+
+**Testable prediction:** the velo_gap effect should shrink as a pitch
+type's typical move_gap from the fastball grows. Measurable with Day 19
+data.
+
+### The sinker result is a measurement artifact, not an effect
+
+Sinkers are fastballs; velo_gap from the primary fastball is normally
+1-2 mph. A large gap means the sinker is SLOW, and a slow sinker is a
+worse sinker. In this pitch type velo_gap measures stuff decay rather
+than separation. **The same variable means different things for
+different pitch types** — a caution for any model that treats it as one
+feature.
+
+### Movement separation matters less than velocity
+
+move_gap correlations are weak everywhere except FC (0.339) and FS
+(0.310); elsewhere 0.03-0.12. Day 19 established that velo_gap and
+move_gap are independent dimensions; this establishes that they are not
+equally useful.
+
+### Limitations
+
+Correlational, single season, no causal claim. Partial correlation
+removes only the linear effect of fastball velocity. Pitch-type sample
+sizes vary widely (SL 299 vs FS 58), so the splitter estimate is the
+least stable of the strong results. Usage rate and pitcher role are not
+controlled.
+
+**Status.** Original research question answered with a qualified yes.
+Candidate section for the Week 12 writeup.
