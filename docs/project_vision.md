@@ -67,3 +67,56 @@ interviewer actually spends time. "XGBoost beat the lookup baseline by
 same as "clone and run locally." Constraint to design for now:
 deployment cannot carry full Statcast data, so the app must read small
 pre-aggregated Parquet files, not raw pitch data.
+## 2026-09-03 — Week 6 scope checkpoint
+
+30 of 72 days complete (42%). Six components remain for 42 days, and
+Week 5 took six days for a single model.
+
+**Considered cutting player similarity and scouting reports. Rejected.**
+
+Scouting is the dashboard's reason to exist. A front-office user asks
+"how do I attack this hitter", not "show me a metric table". Splitting
+scouting out into standalone markdown reports would break the flow that
+makes the dashboard useful — select a player, see the profile, generate
+the report — and would leave the dashboard as a viewer with no decision
+attached to it.
+
+**Cut instead: the projection system's metric coverage.**
+
+Originally intended to project several outcomes. Narrowed to **K% and
+BB% only**.
+
+Rationale:
+- The result that matters is whether the system beats a Marcel-style
+  baseline, not how many metrics it covers. Projecting five metrics and
+  losing to Marcel on all five is not a result.
+- K% and BB% stabilise fastest of any rate (Day 16), so validation is
+  clean rather than dominated by noise.
+- Both apply to hitters AND pitchers, so one methodology covers two
+  domains.
+- The framework extends cheaply. Adding xwOBA later is a configuration
+  change, not new work.
+- AVG was already flagged as near-unpredictable (BABIP noise), so
+  excluding it costs nothing.
+
+## Revised roadmap
+
+| Week | Focus |
+|---|---|
+| 6 | Batter/pitcher evaluation scores · **KBO data investigation** |
+| 7 | Projection system — Marcel baseline, K% and BB% |
+| 8 | Projection validation · scouting report logic |
+| 9 | Player similarity |
+| 10 | KBO translation research |
+| 11 | Dashboard (batter, pitcher, scouting, similarity, model performance) |
+| 12 | Portfolio, README, interview preparation |
+
+**KBO data investigation moved forward from Week 7 to Week 6.** If the
+data does not exist, the Week 10 flagship disappears and the plan needs
+rebuilding. That risk is worth surfacing now rather than in six weeks.
+The investigation itself is a day's work and its outcome reshapes
+everything after it.
+
+**Next checkpoint: end of Week 9.** If the projection system or KBO
+research is behind, similarity is the first thing to go — it is the most
+replaceable component and the least differentiated.
