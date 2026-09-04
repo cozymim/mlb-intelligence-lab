@@ -6,7 +6,7 @@ Built with MLB Statcast data via Baseball Savant. The goal is to move from
 raw pitch-level data to validated metrics, defensible models, and baseball
 decisions — with every modeling choice documented and defendable.
 
-**Status: Week 1 of 12 — data foundation.** No models yet by design.
+**Status: Week 5 of 12.** Data foundation, batter and pitcher analytics, and a first validated model complete.
 
 ---
 
@@ -168,6 +168,75 @@ sit below league whiff rate while sitting 10 points above in ground-ball
 rate. A whiff-based ranking penalises 17.5% of pitchers for doing their
 job.
 
+## First model: P(Whiff | Swing)
+
+**Baselines were built before any model was fitted.** Building them
+afterwards invites choosing one the model can beat.
+
+| Model | Log Loss | AUC | ECE |
+|---|---|---|---|
+| Constant (league rate) | 0.55294 | — | 0.01121 |
+| Lookup + zone (baseline) | 0.49466 | 0.71292 | 0.01382 |
+| **Gradient boosting** | **0.44690** | **0.77741** | **0.00954** |
+
+Test set: 54,137 September swings, evaluated once after every modelling
+decision was locked on validation. 9.7% better log loss than the
+baseline, and better calibrated.
+
+Full documentation: [model card](models/artifacts/whiff_boosting/v1/model_card.md).
+
+### A linear model lost to a two-line groupby
+
+Logistic regression with the same features scored 0.51151 against the
+baseline's 0.48524 on validation — worse than no machine learning at
+all. `plate_z` correlates +0.21 with whiff for four-seams and -0.50 for
+knuckle curves, and one coefficient cannot represent both.
+
+Adding a `pitch_type x plate_z` interaction recovered it (0.47650), and
+that single change was worth four times the model's eventual margin over
+the baseline. **Most of the value came from finding the sign reversal,
+not from the choice of algorithm.**
+
+Without a baseline, "logistic regression, AUC 0.65" would have looked
+like a result.
+
+### Calibration is diagnosed, not assumed
+
+The logistic model ranked well but under-predicted both tails: a 6%
+prediction whiffed 12% of the time. Isotonic regression cut its ECE by
+68%. Platt scaling made it worse — the output of a logistic regression
+is already a sigmoid, so there was no shape left to correct.
+
+Boosting needed no calibration at all. Applying isotonic regression to
+it degraded both log loss and ECE. **The Day 27 conclusion that
+calibration was essential turned out to be model-specific.**
+
+### The error analysis changed what was tried next
+
+Overall log loss said the model beat the baseline. Splitting by pitch
+type showed it losing on three: cutters and sinkers, which have no
+height effect to model, and knuckle curves, which have the strongest
+height effect but too few swings to estimate it.
+
+Two hypotheses followed. Raising the rare-pitch threshold: **wrong** —
+knuckle curves are 1.8% of swings, so a 0.033 group-level loss costs
+0.0006 overall, and thresholds from 500 to 6,000 spanned 0.00007.
+Gradient boosting: **right** — trees split only where a split helps, so
+the interaction that was noise on cutters simply is not made. Boosting
+beats the logistic model on every pitch type.
+
+### What matters, and what does not
+
+Permutation importance: `plate_z_rel` 0.145, `plate_x_bat` 0.045,
+`strikes` 0.018, `release_speed` 0.006, `release_spin_rate` 0.003.
+
+**Location is nearly everything.** Velocity and spin — the measurements
+Statcast is best known for — contribute almost nothing once pitch type
+is controlled. Hyperparameters spanned 0.0012 in log loss across a wide
+grid, so no tuning budget was warranted.
+
+---
+
 ## Research findings
 
 Three questions answered, recorded in
@@ -256,7 +325,7 @@ are never edited or overwritten.
 | 2 | Ingestion pipeline, DuckDB + SQL, temporal split and leakage utilities (done) |
 | 3 | Batter analytics (done) |
 | 4 | Pitcher analytics (done) |
-| 5 | Pitch quality model, P(Whiff given Swing) |
+| 5 | Pitch quality model, P(Whiff given Swing) (done) |
 | 6-8 | Player evaluation and a performance projection system |
 | 9-10 | Scouting reports, player similarity |
 | 11-12 | Dashboard, KBO/MLB translation research, portfolio |
