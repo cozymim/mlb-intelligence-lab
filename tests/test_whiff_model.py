@@ -141,3 +141,30 @@ def test_log_loss_is_finite_on_a_degenerate_fit():
 
     loss = log_loss([1, 1, 0], preds, labels=[0, 1])
     assert np.isfinite(loss)
+
+
+def test_boosting_rejects_leaked_columns():
+    """The guard must fire for boosting as it does for logistic."""
+    from src.models.whiff import fit_boosting
+    from src.utils.leakage import LeakageError
+
+    s = prepare_swings(pitches([("foul", "FF", "R", 0.0, 2.5, 1.6, 3.4)] * 20
+                               + [("swinging_strike", "FF", "R", 0.0, 2.5, 1.6, 3.4)] * 20))
+    X = build_features(s, {"FF"})
+    X["launch_speed"] = 100.0   # post-outcome, must be caught
+
+    with pytest.raises(LeakageError, match="launch_speed"):
+        fit_boosting(X, s["target"].to_numpy())
+
+
+def test_boosting_produces_probabilities_in_range():
+    from src.models.whiff import fit_boosting
+
+    s = prepare_swings(pitches([("foul", "FF", "R", 0.0, 2.5, 1.6, 3.4)] * 30
+                               + [("swinging_strike", "SL", "R", 0.0, 1.8, 1.6, 3.4)] * 30))
+    X = build_features(s, {"FF", "SL"})
+    m = fit_boosting(X, s["target"].to_numpy())
+    p = m.predict_proba(X)[:, 1]
+
+    assert ((p >= 0) & (p <= 1)).all()
+    assert len(p) == len(s)
