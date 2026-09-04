@@ -349,3 +349,86 @@ controlled.
 
 **Status.** Original research question answered with a qualified yes.
 Candidate section for the Week 12 writeup.
+
+---
+
+## 2026-09-03 — KBO data availability: investigation results
+
+Moved forward from Week 7 because the answer reshapes the Week 10
+flagship.
+
+### Pitch tracking data is NOT publicly available — settled
+
+Trackman is installed in nearly all Korean professional parks, so the
+data exists. It is club property and is not published.
+
+The decisive evidence: Ben Howell built the KBO Wizard, an R Shiny app
+for KBO pitch analysis, by **manually charting 28,000+ pitches** because
+no public pitch-by-pitch data existed. He does not release the charted
+data itself.
+
+If an analyst had to hand-chart, there is nothing to find.
+
+**Consequence.** No plate_x/plate_z, no pfx, no release_speed, no
+spin. Every pitch-level technique built in Weeks 3-5 is inapplicable to
+KBO. The research is restricted to season-level rates.
+
+**This confirms the assumption already logged on 2026-08-31**, so the
+planned approach (wRC+, K%, BB%, ISO with hierarchical shrinkage) does
+not change. What is lost is the optional extension into pitch shape.
+
+### KBO adopted ABS in 2024 — a discontinuity we did not anticipate
+
+The KBO became the first professional league to implement an Automated
+Ball-Strike system, in the 2024 season.
+
+**This matters directly.** Day 13 measured human umpires agreeing with
+a geometric zone only ~92% of the time; that 8% is framing, count
+effects and umpire tendency. KBO from 2024 has removed it.
+
+A changed strike zone changes K% and BB% — precisely the two metrics the
+projection system will target.
+
+**Rule: KBO data before and after 2024 cannot be pooled without an
+explicit era control.** Structurally identical to the MLB 2020 Hawk-Eye
+transition and 2023 rule changes already handled in the data dictionary.
+
+Whether ABS moved K%/BB% materially, and in which direction, is an open
+question — and arguably a research question in its own right.
+
+### Available sources
+
+**Baseball-Reference KBO register.** Season-level batting and pitching,
+player pages with gamelogs and splits. **Key advantage: our cached
+`data/external/player_ids.csv` already carries `key_bbref`**, and
+Baseball-Reference hosts both KBO and MLB records, so the crosswalk for
+transitioning players is much simpler than expected.
+
+**MyKBO Stats (mykbostats.com).** Unofficial, English, updated daily.
+
+**`kbodata` on PyPI.** Scrapes koreabaseball.com. Requires
+chromedriver/Selenium — slow, heavy, and not an official API. Several
+similar GitHub projects exist, all Selenium-based.
+
+**There is no official KBO API.** Everything is scraping.
+
+### Open items before Week 10
+
+- [ ] Terms of service and robots.txt for each source. Baseball-Reference
+      is known to restrict automated access; this must be checked, not
+      assumed. CLAUDE.md forbids scraping without checking terms.
+- [ ] Count the actual KBO to MLB transition sample. The ~20-30 estimate
+      is from memory and needs verifying.
+- [ ] Decide the ABS era boundary treatment: restrict to pre-2024, add
+      an era term, or treat 2024+ separately.
+- [ ] Check whether NPB transitions can be pooled to increase sample, and
+      whether that is methodologically defensible given different league
+      environments.
+
+### Status
+
+**The Week 10 research survives**, with its scope confirmed rather than
+reduced: season-level translation factors with hierarchical shrinkage,
+as originally planned. The pitch-shape extension is off the table.
+
+ABS is a new complication and possibly a new opportunity.
