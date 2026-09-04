@@ -432,3 +432,58 @@ reduced: season-level translation factors with hierarchical shrinkage,
 as originally planned. The pitch-shape extension is off the table.
 
 ABS is a new complication and possibly a new opportunity.
+
+### Terms of service — Baseball-Reference is RULED OUT
+
+Sports Reference's data use policy states plainly that you should not
+create websites or tools based on data scraped from their sites without
+permission. Their Terms of Use separately prohibit using automated means
+(scripts, bots, scrapers, data miners) without express written
+permission.
+
+They also note that for some datasets their own licenses preclude any
+redistribution at all, since most of their data is purchased from third
+parties.
+
+**"Do not create tools based on scraped data" describes this project
+exactly.** This is an explicit prohibition, not a grey area.
+Baseball-Reference is excluded as a source.
+
+### This turns out not to matter
+
+The KBO-to-MLB transition sample is roughly 20-30 players. Season-level
+records for 30 players across a few seasons is **100-200 rows** — a
+trivial dataset next to the 710,632 pitches already handled.
+
+**Plan: compile the KBO side by hand from public records**, one row at a
+time, with the source and verification date recorded for each. Manual
+transcription of publicly displayed statistics is not automated
+scraping.
+
+This is arguably better than scraping: every value is eyeballed, so
+parsing errors cannot slip through silently.
+
+**The MLB side requires no external source at all.** K% and BB% for
+Kim Ha-seong, Lee Jung-hoo and the rest can be computed directly from
+the Statcast data already held, using the plate-appearance logic built
+on Day 3.
+
+| Side | Source | Method |
+|---|---|---|
+| MLB | our own Statcast snapshots | computed |
+| KBO | public records | manual entry |
+
+Target artifact: `data/external/kbo_mlb_transitions.csv`, with a
+`source` and `verified_on` column per row.
+
+### Remaining open items
+
+- [ ] Terms for MyKBO Stats and koreabaseball.com, if either is used
+      beyond manual reading
+- [ ] Enumerate the actual transition list and confirm the sample size
+- [ ] ABS era boundary treatment (2024+)
+- [ ] Whether to pool NPB transitions for sample size
+
+The Week 10 research is unblocked. Data volume was never the
+constraint; the constraint is sample size, and that was known from the
+start — it is why hierarchical shrinkage is the method.
