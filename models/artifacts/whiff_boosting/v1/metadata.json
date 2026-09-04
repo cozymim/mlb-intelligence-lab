@@ -1,0 +1,68 @@
+{
+  "version": "v1",
+  "target": "P(whiff | swing)",
+  "estimator": "HistGradientBoostingClassifier",
+  "n_iterations": 292,
+  "train": {
+    "rows": 200735,
+    "start": "2024-03-28",
+    "end": "2024-07-14"
+  },
+  "validation": {
+    "rows": 83492,
+    "start": "2024-07-19",
+    "end": "2024-08-31"
+  },
+  "test": {
+    "rows": 54137,
+    "start": "2024-09-01",
+    "end": "2024-09-29"
+  },
+  "features": [
+    "plate_x_bat",
+    "plate_z_rel",
+    "release_speed",
+    "pfx_x",
+    "pfx_z",
+    "release_spin_rate",
+    "release_extension",
+    "balls",
+    "strikes",
+    "pitch_type_b_CU",
+    "pitch_type_b_FC",
+    "pitch_type_b_FF",
+    "pitch_type_b_FS",
+    "pitch_type_b_KC",
+    "pitch_type_b_OTHER",
+    "pitch_type_b_SI",
+    "pitch_type_b_SL",
+    "pitch_type_b_ST",
+    "pitch_type_b_SV",
+    "stand_R",
+    "p_throws_R",
+    "pitch_type_b_CU_x_pz",
+    "pitch_type_b_FC_x_pz",
+    "pitch_type_b_FF_x_pz",
+    "pitch_type_b_FS_x_pz",
+    "pitch_type_b_KC_x_pz",
+    "pitch_type_b_OTHER_x_pz",
+    "pitch_type_b_SI_x_pz",
+    "pitch_type_b_SL_x_pz",
+    "pitch_type_b_ST_x_pz",
+    "pitch_type_b_SV_x_pz"
+  ],
+  "kept_pitch_types": [
+    "CH",
+    "CU",
+    "FC",
+    "FF",
+    "FS",
+    "KC",
+    "SI",
+    "SL",
+    "ST",
+    "SV"
+  ],
+  "calibrated": false,
+  "seed": 42
+}
