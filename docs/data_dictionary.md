@@ -760,3 +760,39 @@ z-scores, and both times verified something other than what was
 intended. The second failure exposed a real bug — `primary_weapons`
 crashed with an opaque pandas `argmax of an empty sequence` error when
 given unrecognised column names. It now raises a clear KeyError.
+
+---
+
+## Concurrent backfill corrupted an analysis mid-run (2026-09-08)
+
+**Symptom.** Identical code produced different results between two runs.
+Aaron Judge's chase rate moved from 0.179 to 0.209. Mike Trout, Brandon
+Belt and Mike Zunino appeared in a 2024 leaderboard despite minimal 2024
+playing time.
+
+**Cause.** `load_all_snapshots()` read every Parquet file in
+`data/raw/`. A backfill of 2021-2023 was running in the background, so
+the directory contained 185 files from 2021, 104 from 2022 (still
+downloading) and 186 from 2024 at the moment of the read.
+
+The analysis silently pooled three seasons across the 2023 rule changes.
+
+**No error was raised.** The only signal was remembering a value from
+the previous day.
+
+**Worse: the result was not reproducible.** It reflected a directory
+state that existed for a few minutes during a download.
+
+**Fix.** `load_all_snapshots(seasons=[...])` filters by the year in the
+filename. `src/models/whiff.py` now pins `SEASONS = [2024]`, the seasons
+the model was actually built and validated on.
+
+**Rule: every analysis states its seasons explicitly.** "All files on
+disk" is not a specification — it is whatever happens to be there.
+
+Locked in by `test_season_filter_restricts_the_load`.
+
+**Broader lesson.** Data can change outside the code. `data/raw/` is
+immutable per-file, which the project has enforced since Day 2, but the
+*set* of files is not. Immutable records do not make a mutable
+collection safe to read blindly.
