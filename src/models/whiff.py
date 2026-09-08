@@ -44,6 +44,9 @@ LOOKUP_KEYS = ["pitch_type", "balls", "strikes", "in_zone_flag"]
 LOOKUP_PRIOR_STRENGTH = 50.0
 RANDOM_SEED = 42
 
+# The model was built and validated on 2024 only.
+SEASONS = [2024]
+
 # Never emit a probability of exactly 0 or 1: log loss would be infinite.
 PROBABILITY_FLOOR = 1e-6
 
@@ -51,7 +54,11 @@ PROBABILITY_FLOOR = 1e-6
 def prepare_swings(df: pd.DataFrame | None = None) -> pd.DataFrame:
     """All swings with the target and derived location features."""
     if df is None:
-        df = load_all_snapshots()
+        # Season MUST be explicit. Loading every snapshot on disk pooled
+        # 2021, 2022 and 2024 during a concurrent backfill on 2026-09-08
+        # and silently changed every result — Aaron Judge's chase rate
+        # moved 0.179 to 0.209 between runs of identical code.
+        df = load_all_snapshots(seasons=SEASONS)
 
     f = add_discipline_flags(df)
     s = f[f["is_swing"]].copy()

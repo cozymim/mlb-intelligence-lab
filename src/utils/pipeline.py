@@ -60,7 +60,8 @@ def coerce_numeric(df: pd.DataFrame, columns: list[str] | None = None) -> pd.Dat
     return out
 
 
-def load_all_snapshots(root: Path | None = None) -> pd.DataFrame:
+def load_all_snapshots(root: Path | None = None,
+                       seasons: list[int] | None = None) -> pd.DataFrame:
     """Every raw snapshot, concatenated and sorted into pitch order.
 
     When a game date has several snapshots (Statcast revises data), the
@@ -72,6 +73,8 @@ def load_all_snapshots(root: Path | None = None) -> pd.DataFrame:
     newest_by_date: dict[str, Path] = {}
     for path in sorted(raw.glob("statcast_*.parquet")):
         game_date = path.name.split("_")[1]
+        if seasons is not None and int(game_date[:4]) not in seasons:
+            continue
         newest_by_date[game_date] = path   # sorted order means later wins
 
     if not newest_by_date:

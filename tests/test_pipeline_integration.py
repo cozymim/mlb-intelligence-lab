@@ -91,3 +91,15 @@ def test_numeric_coercion_did_not_destroy_data(df):
     """errors="coerce" is a real risk of silent data loss."""
     assert df["plate_x"].notna().mean() > 0.99
     assert df["release_speed"].between(50, 110).mean() > 0.98
+
+
+def test_season_filter_restricts_the_load():
+    """Loading every snapshot on disk silently pools seasons. A backfill
+    running concurrently changed the dataset mid-analysis on 2026-09-03:
+    Aaron Judge's chase rate moved from 0.179 to 0.209 between two runs
+    of identical code, with no error raised."""
+    from src.utils.pipeline import load_all_snapshots
+
+    only_2024 = load_all_snapshots(seasons=[2024])
+    years = pd.to_datetime(only_2024["game_date"]).dt.year.unique()
+    assert set(years) == {2024}
