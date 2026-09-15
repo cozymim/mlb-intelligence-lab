@@ -541,3 +541,36 @@ from this sample size would be false precision.
 The hierarchical Bayesian approach fits this structure directly:
 league-level factor learned from transitions, applied per player, with
 the posterior carrying the uncertainty through to the projection.
+
+### 2026-09-08 — The projection system is the KBO research's engine
+
+Week 7 built a season projection system for MLB. It is also the
+machinery the Week 10 KBO work needs, which was not obvious when the
+scope was set.
+
+**Shared:**
+- Season-line aggregation from plate appearances
+- The pitcher-exclusion filter (KBO had no DH until 2022 either, so the
+  same contamination applies)
+- Regression toward a league mean with an explicit weight
+- Evaluation protocol: MAE, RMSE, correlation against stated baselines
+- The discipline that a projection must beat a named baseline
+
+**Not shared:**
+- KBO has no pitch tracking, so `chase_pct` and `zone_contact_pct` are
+  unavailable. The KBO side runs on season rates alone — effectively
+  Marcel without the skill correction.
+- The KBO question is cross-league, not next-season. The regression
+  target is a translated league mean, not the same league's mean.
+
+**A finding that transfers directly.** Day 36 showed that the gain from
+skill features concentrates where the baseline fails badly, and that
+adding features HURTS where the baseline is already accurate. With ~15
+transition players, the KBO model will be in the "baseline fails badly"
+regime everywhere. That argues for keeping it simple and letting the
+credible intervals carry the uncertainty, rather than adding predictors.
+
+**And a warning.** Day 36's five-feature model overfit 254 rows at a
+condition number of 14.2. The KBO model will have roughly 15 rows.
+Anything beyond one or two parameters is not estimable, which is the
+argument for hierarchical shrinkage rather than more structure.
