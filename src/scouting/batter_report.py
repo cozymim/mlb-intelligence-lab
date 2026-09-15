@@ -130,3 +130,107 @@ def pitching_approach(
         recs.append("No significant deviations from league average "
                     "at these sample sizes")
     return recs
+
+
+# --- Damage assessment -------------------------------------------------
+# Whiff rate alone is dangerously incomplete. Aaron Judge's four-seam
+# whiffs at +1.1% above league — apparently harmless — but barrels at
+# +20.1%. A whiff-only report marks the most expensive pitch in the
+# matchup as unremarkable.
+#
+# Measured on 2024: whiff gap and barrel gap correlate at only 0.318, so
+# roughly 90% of the variance is independent information. 109 of 1,661
+# (batter, pitch type) pairs with adequate samples are "low whiff, high
+# damage" — 6.6%, and the most costly 6.6% available.
+
+MIN_BBE_PER_PITCH = 25
+NOTABLE_BARREL_GAP = 0.05
+
+DAMAGE_NOT_MEASURED = "DAMAGE NOT MEASURED"
+
+
+def damage_splits(bbe: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Per (batter, pitch_type) contact quality, and the league reference.
+
+    `bbe` must be batted ball events with quality flags applied.
+    """
+    b = bbe[bbe["pitch_type"].notna()]
+
+    splits = pd.DataFrame({
+        "bbe": b.groupby(["batter", "pitch_type"]).size(),
+        "barrels": b.groupby(["batter", "pitch_type"])["is_barrel"].sum(),
+        "hard_hits": b.groupby(["batter", "pitch_type"])["is_hard_hit"].sum(),
+    })
+    splits["barrel_pct"] = splits["barrels"] / splits["bbe"]
+    splits["hard_hit_pct"] = splits["hard_hits"] / splits["bbe"]
+
+    league = pd.DataFrame({
+        "lg_barrel": b.groupby("pitch_type")["is_barrel"].mean(),
+        "lg_hard_hit": b.groupby("pitch_type")["is_hard_hit"].mean(),
+    })
+    return splits, league
+
+
+def approach_with_damage(
+    batter_id,
+    pitch_splits: pd.DataFrame,
+    pitch_league: pd.DataFrame,
+    damage: pd.DataFrame,
+    damage_league: pd.DataFrame,
+) -> list[str]:
+    """Recommendations accounting for both miss rate and damage.
+
+    Four verdicts:
+      ATTACK            whiffs above league, damage at or below
+      chase pitch ONLY  whiffs above league BUT punishes contact
+      AVOID             damage above league without the whiffs
+      DAMAGE NOT MEASURED   below the batted-ball threshold
+
+    The last is not the same as safe. Judge's curveball showed the
+    largest whiff gap of any pitch he faced and was the only ATTACK
+    recommendation in an earlier version — on 17 batted balls it barrels
+    at 23.5%, more than three times league. Silence about an unmeasured
+    risk reads as an absence of risk.
+    """
+    if batter_id not in pitch_splits.index.get_level_values(0):
+        return [INSUFFICIENT]
+
+    w = pitch_splits.loc[batter_id]
+    w = w[w["swings"] >= MIN_SWINGS_PER_PITCH].join(pitch_league)
+    if len(w) == 0:
+        return [INSUFFICIENT]
+    w = w.assign(gap=w["whiff_pct"] - w["lg_whiff"])
+
+    if batter_id in damage.index.get_level_values(0):
+        d = damage.loc[batter_id].join(damage_league)
+        d = d.assign(bgap=d["barrel_pct"] - d["lg_barrel"])
+    else:
+        d = pd.DataFrame(columns=["bbe", "bgap"])
+
+    joined = w.join(d[["bbe", "bgap"]], how="left")
+    recs: list[str] = []
+
+    for pt, r in joined.sort_values("gap", ascending=False).iterrows():
+        bbe_n = r.get("bbe", np.nan)
+        bgap = r.get("bgap", np.nan)
+        measured = pd.notna(bbe_n) and bbe_n >= MIN_BBE_PER_PITCH
+
+        if not measured:
+            if r["gap"] > NOTABLE_GAP:
+                n = 0 if pd.isna(bbe_n) else int(bbe_n)
+                recs.append(
+                    f"{pt}: whiffs {r['gap']:+.1%} above league "
+                    f"({int(r['swings'])} sw) — {DAMAGE_NOT_MEASURED} "
+                    f"({n} bbe, need {MIN_BBE_PER_PITCH})")
+            continue
+
+        stamp = f"({int(r['swings'])} sw / {int(bbe_n)} bbe)"
+        if bgap > NOTABLE_BARREL_GAP:
+            kind = "chase pitch ONLY" if r["gap"] > NOTABLE_GAP else "AVOID"
+            recs.append(f"{pt}: {kind} — whiffs {r['gap']:+.1%}, "
+                        f"barrels {bgap:+.1%} {stamp}")
+        elif r["gap"] > NOTABLE_GAP:
+            recs.append(f"{pt}: ATTACK — whiffs {r['gap']:+.1%}, "
+                        f"barrels {bgap:+.1%} {stamp}")
+
+    return recs or ["No significant deviations at these sample sizes"]

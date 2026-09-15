@@ -84,3 +84,72 @@ def test_zone_bands_are_relative_to_each_batter():
     assert out["z_rel"].iloc[1] == pytest.approx(0.25)
     assert out["zone_band"].iloc[0] == "middle"
     assert out["zone_band"].iloc[1] == "low"
+
+
+# --- damage assessment -------------------------------------------------
+
+def damage_frame(rows):
+    """rows: (batter, pitch_type, bbe, barrel_pct)."""
+    idx = pd.MultiIndex.from_tuples([(r[0], r[1]) for r in rows],
+                                    names=["batter", "pitch_type"])
+    return pd.DataFrame({"bbe": [r[2] for r in rows],
+                         "barrel_pct": [r[3] for r in rows]}, index=idx)
+
+
+def damage_league(rates):
+    return pd.DataFrame({"lg_barrel": pd.Series(rates)})
+
+
+def test_low_whiff_high_damage_is_avoid():
+    """Judge's four-seam: whiffs +1.1%, barrels +20.1%. A whiff-only
+    report calls this unremarkable."""
+    from src.scouting.batter_report import approach_with_damage
+
+    out = approach_with_damage(
+        1, splits([(1, "FF", 369, 0.201)]), league({"FF": 0.189}),
+        damage_frame([(1, "FF", 113, 0.301)]), damage_league({"FF": 0.100}))
+    assert "AVOID" in out[0]
+    assert "+20.1%" in out[0]
+
+
+def test_high_whiff_high_damage_is_chase_only():
+    from src.scouting.batter_report import approach_with_damage
+
+    out = approach_with_damage(
+        1, splits([(1, "CH", 118, 0.458)]), league({"CH": 0.293}),
+        damage_frame([(1, "CH", 29, 0.276)]), damage_league({"CH": 0.061}))
+    assert "chase pitch ONLY" in out[0]
+
+
+def test_high_whiff_low_damage_is_attack():
+    from src.scouting.batter_report import approach_with_damage
+
+    out = approach_with_damage(
+        1, splits([(1, "SL", 200, 0.42)]), league({"SL": 0.32}),
+        damage_frame([(1, "SL", 60, 0.06)]), damage_league({"SL": 0.072}))
+    assert "ATTACK" in out[0]
+
+
+def test_unmeasured_damage_is_not_reported_as_safe():
+    """Judge's curveball: largest whiff gap he faced, and the only ATTACK
+    in an earlier version. On 17 batted balls it barrels at 23.5%, over
+    three times league. Silence about unmeasured risk reads as safety."""
+    from src.scouting.batter_report import (
+        DAMAGE_NOT_MEASURED, approach_with_damage)
+
+    out = approach_with_damage(
+        1, splits([(1, "CU", 61, 0.443)]), league({"CU": 0.296}),
+        damage_frame([(1, "CU", 17, 0.235)]), damage_league({"CU": 0.072}))
+    assert DAMAGE_NOT_MEASURED in out[0]
+    assert "ATTACK" not in out[0]
+    assert "17 bbe" in out[0]
+
+
+def test_missing_damage_row_entirely_is_also_not_safe():
+    from src.scouting.batter_report import (
+        DAMAGE_NOT_MEASURED, approach_with_damage)
+
+    out = approach_with_damage(
+        1, splits([(1, "CU", 61, 0.443)]), league({"CU": 0.296}),
+        damage_frame([(2, "CU", 60, 0.07)]), damage_league({"CU": 0.072}))
+    assert DAMAGE_NOT_MEASURED in out[0]

@@ -99,3 +99,79 @@ failure of the system.
 - Recommendations describe whiff vulnerability only, not damage. A
   pitch a hitter rarely misses but destroys when he connects would not
   appear here.
+
+---
+
+## Damage assessment (added 2026-09-15)
+
+The original report had a dangerous omission: it measured only whether a
+hitter MISSES a pitch, never what happens when he connects.
+
+**Aaron Judge's four-seam whiffs at +1.1% above league — apparently
+unremarkable — and barrels at +20.1%.** 34 barrels on 113 batted balls,
+against a league rate of 10.0%. A whiff-only report marks the most
+expensive pitch in the matchup as safe.
+
+### The two dimensions are largely independent
+
+Across 1,661 (batter, pitch type) pairs with adequate samples, whiff gap
+and barrel gap correlate at **0.318**. Roughly 90% of the variance is
+separate information.
+
+**109 pairs (6.6%) are "low whiff, high damage"** — the most costly
+quadrant available. Top of that list: Soto's four-seam (+19.6% barrels,
+-1.4% whiffs), Seager's slider (+16.0%), Ohtani's changeup (+14.6%).
+
+### Four verdicts
+
+| Verdict | Condition |
+|---|---|
+| ATTACK | whiffs above league, damage at or below |
+| chase pitch ONLY | whiffs above league BUT punishes contact |
+| AVOID | damage above league without the whiffs |
+| DAMAGE NOT MEASURED | below 25 batted balls |
+
+### The fourth verdict is the important one
+
+"Not measured" is not "safe", and conflating them produced a genuinely
+harmful recommendation.
+
+**Judge's curveball had the largest whiff gap of any pitch he faced
+(+14.7%) and was the only ATTACK recommendation** in an intermediate
+version. On 17 batted balls it barrels at **23.5%** — more than three
+times league — but 17 is below the threshold, so the risk was simply
+absent from the report.
+
+Silence about an unmeasured risk reads as an absence of risk.
+
+**Sample thresholds cut both ways.** Day 16 established them as
+protection against noise. They are equally a reason a warning may be
+missing, and that must be stated rather than left implicit.
+
+### How the recommendations changed
+
+| Player | Whiff-only version | With damage |
+|---|---|---|
+| Judge | "Attack with CH" | **CH: chase pitch ONLY** (+21.5% barrels) |
+| Soto | "No significant deviations" | **Four pitches AVOID** |
+| Ohtani | "Attack with FF" | **FF: chase pitch ONLY** (+16.2% barrels) |
+
+**Soto's case is the sharpest.** "No weakness found" invites the reading
+"anything works". In fact every pitch he sees in adequate volume is one
+to keep out of the zone.
+
+**None of these three hitters has a single ATTACK pitch.** For elite
+hitters there is no safe offering — only chase pitches and pitches to
+avoid. That is a realistic output, not a failure of the method.
+
+### Sinkers against elite hitters
+
+All three show sinker as AVOID: Judge +20.9%, Soto +18.9%, Ohtani +6.0%.
+
+Day 22 found the sinker to be a strong pitch by league xwOBA (0.368,
+better than the four-seam's 0.392). It is thrown in the zone more than
+any other pitch and induces weak contact.
+
+**Against ordinary hitters that produces ground balls. Against these
+three it produces home runs.** League averages do not transfer to
+individual matchups, which is the entire reason scouting reports exist.
