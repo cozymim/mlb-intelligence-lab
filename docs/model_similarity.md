@@ -109,3 +109,56 @@ than trusting the name list.
   (arsenal shape rather than plate outcomes).
 - Similarity has no ground truth. The wOBA-neighbour check is indirect
   evidence, not validation.
+
+---
+
+## Box-score similarity does NOT approximate Statcast similarity
+
+KBO has no pitch tracking (Day 31), so none of the four Statcast
+features exist there. The question: can box-score rates — K%, BB%, AVG,
+ISO, all computable from a KBO box score — stand in?
+
+**No.** Across 270 batters with 300+ PA in both spaces:
+
+**Mean neighbour overlap: 1.12 of 8.**
+
+| Overlap | Batters |
+|---|---|
+| 0 | **89 (33%)** |
+| 1 | 97 (36%) |
+| 2 | 54 |
+| 3 | 25 |
+| 4+ | 5 (1.9%) |
+
+**69% of players get zero or one shared neighbour.** A third receive
+eight entirely different comparables for the same player and season.
+
+### Judge illustrates why
+
+| Space | Neighbours |
+|---|---|
+| Statcast | Ohtani, O'Neill, Soto, Stanton, Schwarber, Toglia, Ozuna, Rooker |
+| Box score | **Tucker**, Ohtani, Soto, Ozuna, Marte, Pederson, Henderson, Rooker |
+
+Kyle Tucker ranks first in box-score space and is distant in Statcast
+space. His ISO is 0.296 against Judge's, but his barrel rate is 0.129 —
+less than half of Judge's 0.270.
+
+**ISO is an outcome; barrel rate is the process.** Tucker reaches
+similar power production by a different route, and only the
+process-level features can tell them apart.
+
+AVG is the worst offender: it carries heavy BABIP noise (Day 25 found it
+near-unpredictable), and noise in a feature scatters neighbours.
+
+### Consequences for the KBO work (Week 10)
+
+1. **KBO similarity is a separate system**, not a version of this one.
+   It must not be presented alongside Statcast-based comparables.
+2. **"MLB hitters similar to a KBO player" is low-confidence.** Stated
+   with that caveat or not stated at all.
+3. **Similarity is context, not method.** The hierarchical translation
+   model remains the Week 10 approach; similarity supports intuition.
+4. **The comparison is itself a result.** "Box-score data does not
+   substitute for tracking data" is now quantified at 1.12/8 rather than
+   asserted.
