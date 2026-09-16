@@ -175,3 +175,79 @@ any other pitch and induces weak contact.
 **Against ordinary hitters that produces ground balls. Against these
 three it produces home runs.** League averages do not transfer to
 individual matchups, which is the entire reason scouting reports exist.
+
+---
+
+## Pitcher reports (added 2026-09-15)
+
+Mirror of the batter report with one structural difference: **a pitcher
+chooses what to throw; a hitter reacts.** So usage and count tendency
+matter as much as pitch quality. Knowing a pitch is weak is useless if
+it appears 4% of the time.
+
+### League pitch mix by count state (2024)
+
+| Count | FF | SI | SL | CH | CU | ST |
+|---|---|---|---|---|---|---|
+| Behind | **34.4%** | **20.1%** | 12.9% | 9.9% | 3.9% | 4.9% |
+| Even | 31.5% | 17.8% | 14.2% | 8.6% | 6.9% | 7.0% |
+| Ahead | 28.5% | 14.2% | 14.9% | 13.0% | 6.0% | 8.3% |
+| Two strikes | 32.0% | 11.1% | **16.5%** | 11.2% | 6.9% | **9.0%** |
+
+Behind in the count, fastballs reach 54.5% combined. With two strikes,
+sliders and sweepers peak.
+
+**This is the mechanism behind the Day 21 finding** that zone rate rises
+from 32.5% at 0-2 to 58.1% at 3-2: pitchers behind in the count throw
+fastballs, and fastballs go in the zone.
+
+### Three pitchers, three different plans
+
+**Tarik Skubal**
+- OUT PITCH CH: 30.3% with two strikes vs league 11.2%, whiffs +14.6% (266 pitches)
+- Hunt CU: whiffs -12.1% below league, 4.2% usage (40 swings)
+- Behind in the count: 61.8% fastballs
+
+His changeup is thrown with two strikes nearly three times as often as
+league and misses bats at +14.6%. Zone rate 46.4% — it is a chase pitch,
+not a strike.
+
+**Chris Sale**
+- OUT PITCH SL: **44.9%** with two strikes vs league 16.5%, whiffs +8.8% (427 pitches)
+- Hunt CH: whiffs -6.1% below league, 14.2% usage (207 swings)
+- *No fastball tell when behind.*
+
+Nearly half of his two-strike pitches are sliders. **And he has no
+behind-in-the-count fastball tendency**, which is what makes him hard:
+there is no count where the hitter knows what is coming.
+
+**Zack Wheeler**
+- OUT PITCH CU: 14.9% with two strikes vs league 6.9%, whiffs +6.4% (150 pitches)
+- Hunt FC: whiffs -5.8% below league, 9.6% usage (154 swings)
+- Behind in the count: **79.4% fastballs** — sit on it
+
+Four fastballs in five when behind. **The most actionable single line in
+any of these reports.**
+
+### Usage is reported alongside weakness, deliberately
+
+All three have a "hunt" pitch, and all three are secondary offerings
+(4.2%, 14.2%, 9.6%). That is expected — a pitcher's best pitches are the
+ones he throws most.
+
+**But the practical value differs enormously.** Skubal's curveball
+appears once every 25 pitches; Sale's changeup once every seven. Only
+the second is something a hitter can plan around.
+
+A report that said "weak against curveballs" without the usage figure
+would imply a plan that cannot be executed.
+
+### Sinkers with two strikes
+
+Skubal throws sinkers 20.8% with two strikes against a league 11.1%,
+despite the pitch whiffing at -0.4% versus league.
+
+Consistent with Day 22: the sinker's purpose is weak contact, not swing
+and miss. With two strikes he is willing to end the at-bat on a ground
+ball. For a hitter this is a pitch to attack rather than protect
+against.
