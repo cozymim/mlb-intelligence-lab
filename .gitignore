@@ -33,3 +33,8 @@ logs/
 .DS_Store
 .vscode/
 .idea/
+
+# App artifacts: small enough to commit so the dashboard can deploy.
+# Regenerate with scripts/build_app_data.py
+!data/app/
+!data/app/*.parquet

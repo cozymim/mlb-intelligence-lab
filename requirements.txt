@@ -7,3 +7,4 @@ python-dotenv
 ipykernel
 matplotlib
 pytestscikit-learn
+streamlit
