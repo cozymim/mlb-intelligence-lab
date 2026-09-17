@@ -574,3 +574,64 @@ credible intervals carry the uncertainty, rather than adding predictors.
 condition number of 14.2. The KBO model will have roughly 15 rows.
 Anything beyond one or two parameters is not estimable, which is the
 argument for hierarchical shrinkage rather than more structure.
+
+### 2026-09-15 — Pitchers added back; sample count corrected
+
+**The Day 31 decision to exclude pitchers rested on a wrong number.**
+It assumed ~30 transitions split 15/15. Verified count of KBO-to-MLB
+POSITION PLAYERS over 11 years:
+
+Posted (all Kiwoom Heroes): Kang Jung-ho (2015), Park Byung-ho (2016),
+Ha-seong Kim (2021), Jung-hoo Lee (2024), Hye-seong Kim (2025).
+Via free agency: Kim Hyun-soo (2016), Hwang Jae-gyun (2017).
+
+**Seven.** Not enough for any model, hierarchical or otherwise.
+
+### The reverse direction is the real sample
+
+KBO foreign players almost all carry MLB or Triple-A records. The 2020
+KBO home run leaderboard alone featured Mel Rojas Jr., Preston Tucker,
+Jamie Romak and Aaron Altherr, all former MLB players.
+
+**KBO roster rules allow two foreign pitchers and one foreign hitter per
+club**, so foreign pitchers outnumber foreign hitters roughly 2:1.
+Across ten seasons: perhaps 40-60 hitters and 80-150 pitchers with
+MLB history.
+
+Excluding pitchers therefore does not halve the sample — it removes the
+larger half.
+
+### Selection bias runs in opposite directions
+
+Forward: only the best KBO players are posted.
+Reverse: only MLB players who could not hold a job sign in KBO.
+
+Both are selected, oppositely. Combining them may partially cancel the
+bias or may not. **Addressing this explicitly is a methodological
+contribution rather than a caveat.**
+
+### The role objection is solved by metric choice
+
+The original worry was that Kim Kwang-hyun started in KBO and moved
+between starting and relieving in MLB, confounding role change with
+translation.
+
+**K% and BB% are per-batter-faced rates**, so they carry the same
+meaning for a starter and a reliever. Innings-based metrics (ERA, WHIP)
+do not. The projection system already narrowed to K% and BB% on Day 31
+precisely because they apply to both hitters and pitchers.
+
+Starter/reliever can additionally be controlled via games started over
+games appeared.
+
+### Revised plan
+
+| Group | Forward | Reverse |
+|---|---|---|
+| Hitters | 7 | 40-60 |
+| Pitchers | Ryu, Kim Kwang-hyun, Oh Seung-hwan, Yang Hyeon-jong, others | 80-150 |
+
+**Separate models for hitters and pitchers** — translation factors may
+differ — but shared methodology and code.
+
+Pitcher rows record batters faced, not innings: K% = SO / BF.
