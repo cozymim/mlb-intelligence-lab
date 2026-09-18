@@ -6,7 +6,9 @@ Built with MLB Statcast data via Baseball Savant. The goal is to move from
 raw pitch-level data to validated metrics, defensible models, and baseball
 decisions — with every modeling choice documented and defendable.
 
-**Status: Week 5 of 12.** Data foundation, batter and pitcher analytics, and a first validated model complete.
+**[Live dashboard](https://mlb-intelligence-lab.streamlit.app)** — batter and pitcher profiles, scouting reports, and model performance including where the models failed.
+
+**Status: Week 6 of 12.** Data foundation, batter and pitcher analytics, and a first validated model complete.
 
 ---
 
@@ -304,7 +306,7 @@ Both entries, including the failed prediction, are in
 
     python3 -m venv .venv
     source .venv/bin/activate
-    pip install -r requirements.txt
+    pip install -r requirements-dev.txt
     python -m pytest tests/ -v
 
 `requirements.lock.txt` pins exact installed versions for reproducibility.
