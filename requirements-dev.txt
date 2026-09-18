@@ -1,0 +1,11 @@
+pandas
+numpy
+pyarrow
+duckdb
+pybaseball
+python-dotenv
+ipykernel
+matplotlib
+pytest
+scikit-learn
+streamlit

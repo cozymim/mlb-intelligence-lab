@@ -1,10 +1,5 @@
+streamlit
 pandas
 numpy
 pyarrow
-duckdb
-pybaseball
-python-dotenv
-ipykernel
-matplotlib
-pytestscikit-learn
-streamlit
+scikit-learn
