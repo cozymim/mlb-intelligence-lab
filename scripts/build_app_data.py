@@ -88,6 +88,21 @@ def main() -> None:
     ]:
         obj.to_parquet(OUT / f"{name}.parquet")
 
+    # --- KBO translation
+    logger.info("kbo translation")
+    from src.models.kbo_translation import build_pairs
+
+    kbo = pd.read_csv("data/external/kbo_batting.csv")
+    mlb_lines = pd.read_csv("data/external/kbo_players_mlb_lines.csv")
+    pairs = build_pairs(kbo, mlb_lines).reset_index()
+    pairs.to_parquet(OUT / "kbo_pairs.parquet", index=False)
+    kbo.to_parquet(OUT / "kbo_seasons.parquet", index=False)
+
+    prospects = pd.read_csv("data/external/kbo_prospects.csv")
+    prospects.to_parquet(OUT / "kbo_prospects.parquet", index=False)
+    logger.info("  %d pairs, %d prospect seasons (%d players)",
+                len(pairs), len(prospects), prospects["player_en"].nunique())
+
     total = sum(p.stat().st_size for p in OUT.glob("*.parquet"))
     logger.info("done. %d files, %.1f MB", len(list(OUT.glob("*.parquet"))), total / 1e6)
 
