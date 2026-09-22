@@ -135,3 +135,17 @@ more players moving between the leagues would.
   this, and it is recorded as an observation, not a finding.
 - **Park and run environment are not adjusted.**
 - K% only. BB% and ISO are not projectable from this data.
+
+## Prospect selection
+
+23 current KBO hitters, 2023-2025 seasons, chosen as plausible MLB
+posting candidates: young enough for a club to invest in, and producing
+at a level that draws attention.
+
+Two players were removed after the first pass:
+- **Song Sung Mun** — already signed with an MLB club, so he is no
+  longer a projection target
+- **Kim Tae Gun** — too old to be a posting candidate
+
+The list is a judgment call, not a systematic screen. It is illustrative
+of what the method produces, not a ranked board.
