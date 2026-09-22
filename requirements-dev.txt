@@ -9,3 +9,5 @@ matplotlib
 pytest
 scikit-learn
 streamlit
+pymc
+arviz
