@@ -635,3 +635,79 @@ games appeared.
 differ — but shared methodology and code.
 
 Pitcher rows record batters faced, not innings: K% = SO / BF.
+
+---
+
+## 2026-09-21 — First KBO/MLB translation measurements
+
+77 of 81 KBO foreign hitters have MLB records in the 2014-2024 holdings
+(261 player-seasons). The four missing finished in MLB before 2014.
+
+Rates are computed from career totals per player, with BB% excluding
+intentional walks **on both sides** — KBO box scores fold IBB into BB,
+so an unmatched definition would corrupt the ratio.
+
+### Translation factors, 40 players with 200+ KBO PA and 100+ MLB PA
+
+| Metric | MLB | KBO | Ratio | Correlation across players |
+|---|---|---|---|---|
+| K% | 0.242 | 0.166 | **0.69** | **0.77** |
+| BB% | 0.069 | 0.085 | 1.24 | **0.32** |
+| ISO | 0.157 | 0.202 | 1.29 | **0.28** |
+
+PA-weighted means, so a 100-PA stint does not count as much as 1,000.
+
+**Only K% translates predictably.** A correlation of 0.77 means the
+ordering of players survives the league change: a hitter who struck out
+more in MLB strikes out more in KBO. That is what makes a projection
+possible.
+
+**BB% and ISO do not.** Both league means shift (1.24x, 1.29x) but
+individual differences barely carry over at r = 0.28-0.32. The league
+gets easier for everyone; who benefits most is not predictable from the
+KBO line.
+
+This matches Day 16, which measured K% as the fastest-stabilising rate.
+Noisy metrics do not transmit across leagues, because most of what they
+measure is noise.
+
+**Scouting consequence:** projecting a KBO home run leader's MLB power
+from his ISO is weakly supported. Projecting his strikeout rate is far
+better supported.
+
+### Players who returned to MLB after KBO — the "refined in Korea"
+### narrative is NOT supported
+
+Eleven players went MLB to KBO to MLB. K% before, during, and after:
+
+| Player | MLB before | KBO | MLB after | PA after |
+|---|---|---|---|---|
+| Mike Tauchman | 0.270 | 0.160 | **0.207** | 753 |
+| Nick Martini | 0.216 | 0.149 | 0.218 | 243 |
+| Christian Bethancourt | 0.241 | 0.228 | 0.254 | 815 |
+| Darin Ruf | 0.250 | 0.171 | **0.270** | 854 |
+| Jim Adduci | 0.237 | 0.204 | 0.265 | 283 |
+| Niko Goodrum | 0.313 | 0.229 | 0.294 | 34 |
+| Dixon Machado | 0.180 | 0.114 | 0.294 | 17 |
+
+**Nine of eleven returned with a K% at or worse than before.** Only
+Tauchman clearly improved, and his is the best-powered comparison in the
+group (667 PA before, 753 after).
+
+**But a confound is unresolved: age.** A KBO stint costs two to four
+years, and K% rises with age — the reason Marcel's age adjustment was
+deliberately omitted on Day 35 (its coefficients were fitted for
+production, which declines, while strikeouts increase).
+
+**KBO effect and ageing effect are not separable without birth dates,
+which the cached Chadwick columns do not include.** Recorded as an open
+question, not a finding.
+
+### Sample warnings
+
+Post-KBO MLB samples include 17, 15 and 34 PA. Andy Burns' 0.067 is one
+strikeout in fifteen. **Any analysis must impose a minimum of ~100 PA**,
+and even then several of these comparisons rest on a few hundred.
+
+The full 77-player set has median 354 KBO PA and 322 MLB PA, with
+minimums of 11 and 9. Shrinkage is not optional here.
