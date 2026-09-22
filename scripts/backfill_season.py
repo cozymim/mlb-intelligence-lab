@@ -42,6 +42,7 @@ SEASON_WINDOWS = {
 }
 
 PAUSE_SECONDS = 2.0
+MAX_CONSECUTIVE_FAILURES = 5
 
 
 def daterange(start: str, end: str):
@@ -61,8 +62,18 @@ def main(year: int) -> None:
     logger.info("season %d: %d days from %s to %s", year, len(days), start, end)
 
     downloaded = skipped = failed = empty = 0
+    consecutive_failures = 0
 
     for i, day in enumerate(days, 1):
+        # Circuit breaker. When the network dropped on 2026-09-17 (laptop
+        # sleep, DNS resolution failing), every remaining day failed 0.1 s
+        # apart and the run "finished" having marked 67+ days failed in
+        # seconds. Consecutive failures mean the network is down, not
+        # that those days are bad.
+        if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+            logger.error("stopping: %d consecutive failures — network likely "
+                         "down. Re-run to resume.", consecutive_failures)
+            break
         if find_existing_snapshots(day):
             skipped += 1
             continue
@@ -76,8 +87,10 @@ def main(year: int) -> None:
                 downloaded += 1
                 logger.info("[%d/%d] %s: %d pitches", i, len(days), day, len(df))
             time.sleep(PAUSE_SECONDS)
+            consecutive_failures = 0
         except Exception as exc:
             failed += 1
+            consecutive_failures += 1
             logger.error("[%d/%d] %s FAILED: %s", i, len(days), day, exc)
 
     logger.info(
