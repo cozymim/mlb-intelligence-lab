@@ -405,13 +405,23 @@ are never edited or overwritten.
 | 3 | Batter analytics (done) |
 | 4 | Pitcher analytics (done) |
 | 5 | Pitch quality model, P(Whiff given Swing) (done) |
-| 6-8 | Player evaluation and a performance projection system |
-| 9-10 | Scouting reports, player similarity |
-| 11-12 | Dashboard, KBO/MLB translation research, portfolio |
+| 6 | Evaluation scores for batters and pitchers (done) |
+| 7 | Projection system, Marcel baseline plus Statcast skills (done) |
+| 8 | Scouting reports, batter and pitcher (done) |
+| 9 | Player similarity (done) |
+| 10 | KBO/MLB translation research, hitters and pitchers (done) |
+| 11 | Dashboard, deployed (done) |
+| 12 | Portfolio and write-up |
 
-Two flagship components: a projection system benchmarked against a
-Marcel-style baseline, and hierarchical Bayesian research on KBO/MLB league
-translation. See [docs/project_vision.md](docs/project_vision.md).
+Scope changed twice along the way, both times recorded in
+[docs/project_vision.md](docs/project_vision.md): the projection system
+was narrowed to K% and BB% at the Week 6 checkpoint, and the KBO work was
+reframed from estimating translation factors to projecting players who
+have never played in MLB — which is the question a front office actually
+asks.
+
+The dashboard moved forward from Week 11 to Week 6 so the KBO results had
+somewhere to land rather than being retrofitted afterwards.
 
 ## Limitations
 
