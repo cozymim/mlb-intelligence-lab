@@ -8,7 +8,104 @@ decisions — with every modeling choice documented and defendable.
 
 **[Live dashboard](https://mlb-intelligence-lab.streamlit.app)** — batter and pitcher profiles, scouting reports, and model performance including where the models failed.
 
-**Status: Week 6 of 12.** Data foundation, batter and pitcher analytics, and a first validated model complete.
+**Status: Week 11 of 12.** Data foundation, batter and pitcher analytics, four validated models, a deployed dashboard, and the KBO translation research complete.
+
+---
+
+## KBO to MLB translation research
+
+The differentiating piece: a prospective scouting model for Korean
+hitters, built on data that had to be compiled by hand because none of
+it exists in a public API.
+
+**[Dashboard page](https://mlb-intelligence-lab.streamlit.app)** ·
+[Model card](docs/model_kbo_translation.md)
+
+### The data did not exist
+
+KBO has no public pitch tracking. Trackman is installed in Korean parks
+but the data is club property — an analyst building a KBO pitch-analysis
+tool had to hand-chart 28,000+ pitches because nothing public existed.
+
+Baseball-Reference was ruled out on terms of service: their policy
+prohibits creating tools from scraped data, which describes this project
+exactly.
+
+**So the KBO side was transcribed by hand** — 193 batting lines and 73
+pitching lines, each validated against baseball identities (hits cannot
+exceed at-bats, strikeouts cannot exceed plate appearances) before use.
+The MLB side is computed from the project's own Statcast holdings.
+
+### Only strikeout rate translates
+
+| Metric | League ratio | Correlation across players |
+|---|---|---|
+| K% | 0.69 | **0.77** |
+| BB% | 1.24 | 0.32 |
+| ISO | 1.29 | 0.28 |
+
+All three league means shift. **Only for strikeouts does the ordering of
+players survive the move.** Projecting a KBO home run leader's MLB power
+from his ISO is not supported; projecting his strikeout rate is.
+
+### Hierarchical model, because the samples are wildly uneven
+
+    mu                      league shift in log-odds of a strikeout
+    delta_i ~ N(mu, tau)    each player's own shift, partially pooled
+    K_i ~ Binomial(BF_i, ...)
+
+47 players with 100+ PA in both leagues. mu = -0.427 (sd 0.038),
+tau = 0.229 (sd 0.032).
+
+**Shrinkage does real work.** Justin Bour's raw estimate on 117 KBO
+plate appearances says he struck out MORE in Korea; the model reverses
+the sign to -0.135. Jose Miguel Fernandez, on 2,480, moves only -0.598
+to -0.582. An unweighted average would treat those identically.
+
+### tau is six times mu's uncertainty, and that sets the honest answer
+
+The league factor is well determined. **How far an individual deviates
+from it is not.** A KBO hitter at 15% K% over 500 PA projects to 21.5%
+in MLB with an 80% interval of [16.0%, 27.4%] — eleven points wide.
+
+**More KBO plate appearances barely help.** 500 PA gives an 11.4-point
+interval; 150 PA gives 13.7. The binding constraint is the number of
+transition players, not any one player's sample. Another season of
+watching a prospect does not fix that.
+
+### Pitchers were attempted and the data said no
+
+The same pipeline, 38 transition pitchers, 73 hand-entered seasons.
+
+| | Hitters K% | Pitchers K% |
+|---|---|---|
+| Cross-league correlation | **0.77** | **0.08** |
+
+Pitcher BB% looked usable at r = 0.64 (p = 0.001) — until the sample
+floor was raised from 200 to 400 batters faced, where it collapsed to
+0.02. **Raising a floor removes noise and should strengthen a real
+relationship.** A result that depends on where the threshold sits is not
+a finding.
+
+**No pitcher projection is published.** Reporting one from r = 0.08
+would be presenting noise as a forecast.
+
+The negative result is useful twice over: it rules out a bad model, and
+it shows the hitter result is a property of hitters rather than an
+artifact of the method.
+
+### Limitations, stated on the dashboard as well as here
+
+- **47 players.** Every interval reflects that.
+- **Selection bias runs in opposite directions.** The foreign hitters in
+  this sample are MLB players who could not hold a job there. The seven
+  Korean position players ever posted to MLB were KBO stars. Whether one
+  translation describes both groups is untested.
+- **Age is a confound.** Nine of eleven players who returned to MLB came
+  back with a worse K%, but a KBO stint costs two to four years and
+  strikeout rate rises with age. Birth dates are not in the player
+  register used here.
+- **ABS.** KBO introduced automated ball-strike calling in 2024.
 
 ---
 
@@ -269,26 +366,6 @@ The most concrete explanation is that within-pitch-type release scatter
 (0.223) exceeds between-pitch-type separation (0.146): for most
 pitchers there may be nothing for a hitter to read. Reported as a null
 result rather than discarded.
-
----
-
-## Findings so far
-
-**Whiff rate falls as balls accumulate in two-strike counts.**
-0-2: 25.0%, 1-2: 20.9%, 2-2: 19.1%, 3-2: 15.6%. This contradicted the
-initial prediction that two-strike counts would uniformly raise whiff
-rates. Untested hypothesis: at 3-2 the pitcher must throw a strike and the
-hitter can take anything off the plate, so both sides push toward the zone.
-Testable in Week 4 with `plate_x` / `plate_z`.
-
-**Velocity and whiff rate are inversely related by pitch type.**
-Sinker 92.9 mph / 10.8% whiff, four-seam 94.2 / 16.5%, versus slider
-85.7 / 32.2% and changeup 86.2 / 31.4%. Consequence: whiff rate is the
-wrong sole criterion for a sinker, which exists to induce ground balls.
-Pitch-type-specific success criteria are needed.
-
-Both entries, including the failed prediction, are in
-[docs/research_log.md](docs/research_log.md).
 
 ---
 
