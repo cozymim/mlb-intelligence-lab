@@ -32,8 +32,9 @@ st.caption(
     "shift for all three, but only for strikeouts does the ordering of "
     "players survive the move.")
 
-tab_players, tab_calc, tab_evidence, tab_method = st.tabs(
-    ["Prospects", "Calculator", "Evidence", "Method and limits"])
+tab_players, tab_calc, tab_evidence, tab_pitchers, tab_method = st.tabs(
+    ["Prospects", "Calculator", "Evidence", "Why no pitchers",
+     "Method and limits"])
 
 with tab_players:
     st.subheader("Current KBO hitters, projected to MLB")
@@ -158,6 +159,70 @@ with tab_evidence:
                "Applying a single 0.69 understates high-strikeout hitters "
                "by about 1.8 points at a 35% MLB rate.")
 
+
+with tab_pitchers:
+    st.subheader("Why there are no pitcher projections")
+
+    st.write(
+        "The same pipeline was applied to pitchers: 38 foreign pitchers "
+        "who moved between the leagues, 73 KBO seasons entered by hand, "
+        "37 matched to MLB records. **No metric translated well enough "
+        "to project from.**")
+
+    st.markdown("#### Hitters translate. Pitchers do not.")
+    comp = pd.DataFrame([
+        {"Group": "Hitters", "Metric": "K%", "Cross-league correlation": 0.77},
+        {"Group": "Hitters", "Metric": "BB%", "Cross-league correlation": 0.32},
+        {"Group": "Hitters", "Metric": "ISO", "Cross-league correlation": 0.28},
+        {"Group": "Pitchers", "Metric": "K%", "Cross-league correlation": 0.08},
+        {"Group": "Pitchers", "Metric": "BB%", "Cross-league correlation": 0.64},
+        {"Group": "Pitchers", "Metric": "HR%", "Cross-league correlation": 0.23},
+    ])
+    st.dataframe(comp, use_container_width=True, hide_index=True)
+
+    st.markdown("#### The one promising number did not survive a check")
+    thresh = pd.DataFrame([
+        {"Batters faced floor": "200 (n=24)", "K%": 0.08, "BB%": 0.64},
+        {"Batters faced floor": "400 (n=14)", "K%": -0.05, "BB%": 0.02},
+    ])
+    st.dataframe(thresh, use_container_width=True, hide_index=True)
+
+    st.error(
+        "**BB% correlated at 0.64 with p = 0.001, then collapsed to 0.02 "
+        "when the sample floor was raised.** Raising a floor removes "
+        "noise and should STRENGTHEN a real relationship. A result that "
+        "depends on where the threshold is drawn is not a finding.")
+
+    st.markdown("#### Why hitters and pitchers differ")
+    st.info(
+        "Strikeouts are an interaction between a pitcher and a batter, "
+        "and the two sides do not carry equally across a league change.\n\n"
+        "**A hitter's contact ability is his own.** Whatever is thrown, "
+        "some hitters put the bat on it more often, and that ordering "
+        "survives the move.\n\n"
+        "**A pitcher's strikeout rate depends on who he faces.** KBO "
+        "hitters strike out far less — the hitter data shows a 0.69 "
+        "ratio — so a strikeout-oriented MLB pitcher loses part of his "
+        "weapon on arrival.\n\n"
+        "Command looked like the exception, since throwing strikes should "
+        "not depend on the opponent. The data did not support even that "
+        "at an adequate sample.")
+
+    st.caption(
+        "The pitcher data is kept and the analysis is documented. If the "
+        "sample grows — 136 pitchers have MLB ids, only 37 are entered — "
+        "the question is worth revisiting. Reporting a projection from "
+        "r = 0.08 would be presenting noise as a forecast.")
+
+    pairs = load("kbo_pitcher_pairs")
+    with st.expander(f"The {len(pairs)} pitchers this rests on"):
+        st.dataframe(
+            pairs.sort_values("kbo_bf", ascending=False)
+            .style.format({"kbo_bf": "{:.0f}", "mlb_bf": "{:.0f}",
+                           "kbo_k_pct": "{:.1%}", "mlb_k_pct": "{:.1%}",
+                           "kbo_bb_pct": "{:.1%}", "mlb_bb_pct": "{:.1%}",
+                           "kbo_hr_pct": "{:.1%}", "mlb_hr_pct": "{:.1%}"}),
+            use_container_width=True, hide_index=True)
 with tab_method:
     st.subheader("Method")
     st.code("""mu                      league shift in log-odds of a strikeout

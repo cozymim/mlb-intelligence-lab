@@ -103,6 +103,25 @@ def main() -> None:
     logger.info("  %d pairs, %d prospect seasons (%d players)",
                 len(pairs), len(prospects), prospects["player_en"].nunique())
 
+    # --- KBO pitcher comparison (a negative result, shown deliberately)
+    kbo_p = pd.read_csv("data/external/kbo_pitching.csv")
+    mlb_p = pd.read_csv("data/external/kbo_pitchers_mlb_lines.csv")
+
+    def _rates(df):
+        t = df.groupby("player_en")[["bf", "so", "bb", "ibb", "hr"]].sum()
+        return pd.DataFrame({
+            "bf": t["bf"],
+            "k_pct": t["so"] / t["bf"],
+            "bb_pct": (t["bb"] - t["ibb"]) / t["bf"],
+            "hr_pct": t["hr"] / t["bf"],
+        })
+
+    pitch_pairs = (_rates(kbo_p).add_prefix("kbo_")
+                   .join(_rates(mlb_p).add_prefix("mlb_"), how="inner")
+                   .reset_index())
+    pitch_pairs.to_parquet(OUT / "kbo_pitcher_pairs.parquet", index=False)
+    logger.info("  %d pitchers in both leagues", len(pitch_pairs))
+
     total = sum(p.stat().st_size for p in OUT.glob("*.parquet"))
     logger.info("done. %d files, %.1f MB", len(list(OUT.glob("*.parquet"))), total / 1e6)
 
