@@ -149,3 +149,67 @@ Two players were removed after the first pass:
 
 The list is a judgment call, not a systematic screen. It is illustrative
 of what the method produces, not a ranked board.
+
+---
+
+# Pitchers: no usable translation found
+
+The same pipeline was applied to 38 foreign pitchers who moved between
+the leagues, 73 KBO seasons entered by hand, 37 matched to MLB records
+(142 pitcher-seasons, 2014-2024).
+
+Rates are per batter faced, not per inning: K% = SO / BF means the same
+thing for a starter and a reliever.
+
+## Cross-league correlations, 24 pitchers with 200+ BF in both leagues
+
+| Metric | MLB | KBO | Ratio | Correlation | p |
+|---|---|---|---|---|---|
+| K% | 0.185 | 0.198 | 1.07 | **+0.08** | 0.71 |
+| BB% | 0.078 | 0.068 | 0.87 | **+0.64** | 0.001 |
+| HR% | 0.034 | 0.019 | 0.57 | +0.23 | 0.29 |
+
+**K% does not translate at all** (r = 0.08). BB% looked promising.
+
+## The BB% correlation does not survive a higher threshold
+
+| BF floor | n | K% | BB% |
+|---|---|---|---|
+| 200 | 24 | +0.08 | **+0.64** |
+| 400 | 14 | -0.05 | **+0.02** |
+
+**Raising the sample floor should reduce noise and strengthen a real
+relationship. It collapsed instead.** A p-value of 0.001 at one
+threshold and r = 0.02 at another is not a finding; it is a sample
+definition producing a number.
+
+**No pitcher metric is usable for translation.**
+
+## Why pitchers differ from hitters
+
+Hitters translate on K% at r = 0.77. Pitchers translate on nothing.
+
+Strikeouts and walks are interactions between a pitcher and a batter,
+but the two sides do not carry equally across a league change:
+
+- **A hitter's contact ability is his own.** Whatever is thrown, some
+  hitters put the bat on it more often. That ordering survives.
+- **A pitcher's strikeout rate depends on who he faces.** KBO hitters
+  strike out far less — the hitter data shows a 0.69 ratio — so a
+  strikeout-oriented MLB pitcher loses part of his weapon on arrival.
+
+**Command was the plausible exception** — throwing strikes should be
+independent of the opponent — and the data does not support even that
+at an adequate sample.
+
+Sample size compounds it: 37 pitchers, of whom 24 clear 200 BF in both
+leagues and only 14 clear 400. The hitter study had 47.
+
+## What this means
+
+**The KBO translation model covers hitters only.** Extending it to
+pitchers was attempted with the same rigour and the data did not
+support it.
+
+Reporting a pitcher projection from these correlations would be
+presenting noise as a forecast.
