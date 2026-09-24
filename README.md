@@ -430,3 +430,34 @@ biomechanics, minor league tracking, internal medical and player
 development data. This project is a public-data approximation of a Baseball
 Operations analytics workflow, not a recreation of a proprietary club
 system.
+
+Specific limits worth naming:
+
+**One season for most analyses.** The whiff model, evaluation scores,
+scouting reports and similarity all run on 2024 only. Four seasons
+(2021-2024) support the projection system, eleven (2014-2024) the KBO
+matching. Nothing here has been validated across eras.
+
+**One projection season.** A three-year Marcel window over four seasons
+of data leaves 2024 as the only projectable year, evaluated on 254
+batters. That is a single snapshot.
+
+**47 transition players** behind the KBO translation, with selection bias
+running in opposite directions for the two groups that matter. The
+intervals reflect this; the caveat does not go away by widening them.
+
+**No defence, park, or age adjustments anywhere.** The pitcher evaluation
+score includes whether fielders converted batted balls. The projection
+system omits the age adjustment Marcel specifies, because Tango's
+coefficients were fitted for production, which declines with age, while
+strikeout rate rises.
+
+**Similarity is undefined for extreme players.** 72% of Aaron Judge's
+distance to other hitters comes from barrel rate alone. The dashboard
+surfaces this rather than hiding it, but it is not fixable within a
+distance-based method.
+
+**Coefficients are associations, not causal effects**, throughout. The
+projection model's chase coefficient is negative — backwards as baseball
+— because Marcel has already absorbed the main effect. It predicts; it
+does not explain.
