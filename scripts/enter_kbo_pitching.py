@@ -17,7 +17,9 @@ from pathlib import Path
 
 import pandas as pd
 
-PATH = Path("data/external/kbo_pitching.csv")
+import os
+PATH = Path(os.environ.get("KBO_PITCHING_FILE",
+                           "data/external/kbo_pitching.csv"))
 REQUIRED = ["bf", "so", "bb"]
 OPTIONAL = ["g", "gs", "ip", "h", "hr", "ibb", "hbp", "er"]
 
