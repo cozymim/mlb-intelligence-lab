@@ -161,49 +161,38 @@ the leagues, 73 KBO seasons entered by hand, 37 matched to MLB records
 Rates are per batter faced, not per inning: K% = SO / BF means the same
 thing for a starter and a reliever.
 
-## Cross-league correlations, 24 pitchers with 200+ BF in both leagues
+## Cross-league correlations
 
-| Metric | MLB | KBO | Ratio | Correlation | p |
-|---|---|---|---|---|---|
-| K% | 0.185 | 0.198 | 1.07 | **+0.08** | 0.71 |
-| BB% | 0.078 | 0.068 | 0.87 | **+0.64** | 0.001 |
-| HR% | 0.034 | 0.019 | 0.57 | +0.23 | 0.29 |
+Tested twice. The first pass used 37 pitchers; the sample was then
+expanded by hand to 50 (119 KBO seasons entered), of whom 47 have MLB
+records. **The conclusion did not change.**
 
-**K% does not translate at all** (r = 0.08). BB% looked promising.
+| BF floor | n | K% | BB% | HR% |
+|---|---|---|---|---|
+| 200 | 31 | +0.15 (p=0.44) | **+0.59 (p<0.001)** | +0.25 (p=0.18) |
+| 400 | 18 | +0.06 (p=0.82) | +0.22 (p=0.39) | +0.16 (p=0.53) |
+| 600 | 11 | +0.18 (p=0.61) | +0.38 (p=0.25) | -0.26 (p=0.44) |
 
-## The BB% correlation does not survive a higher threshold
+**K% does not translate at any threshold.** Every p-value exceeds 0.4.
+Growing the sample by 27% moved the correlation from 0.08 to 0.15 —
+still nothing.
 
-| BF floor | n | K% | BB% |
-|---|---|---|---|
-| 200 | 24 | +0.08 | **+0.64** |
-| 400 | 14 | -0.05 | **+0.02** |
+**BB% is significant only at the lowest floor.** 0.59 with p < 0.001 at
+200 batters faced, then 0.22 and 0.38 as the floor rises, neither
+significant. The first pass showed the same shape: 0.64 at 200,
+collapsing to 0.02 at 400.
 
-**Raising the sample floor should reduce noise and strengthen a real
-relationship. It collapsed instead.** A p-value of 0.001 at one
-threshold and r = 0.02 at another is not a finding; it is a sample
-definition producing a number.
+**A relationship that only appears at the loosest sample cut is an
+artifact of sample composition, not a finding.** Low floors admit
+pitchers with small samples in both leagues, whose rates sit at extremes
+by chance, and that inflates the correlation. Raising the floor removes
+them and the relationship disappears.
 
-**No pitcher metric is usable for translation.**
+Three pitchers in the expanded set have no MLB appearances in the
+2014-2024 holdings (Ben Lively, Nick Kingham, Ryan Weiss) and are
+excluded.
 
-## Why pitchers differ from hitters
 
-Hitters translate on K% at r = 0.77. Pitchers translate on nothing.
-
-Strikeouts and walks are interactions between a pitcher and a batter,
-but the two sides do not carry equally across a league change:
-
-- **A hitter's contact ability is his own.** Whatever is thrown, some
-  hitters put the bat on it more often. That ordering survives.
-- **A pitcher's strikeout rate depends on who he faces.** KBO hitters
-  strike out far less — the hitter data shows a 0.69 ratio — so a
-  strikeout-oriented MLB pitcher loses part of his weapon on arrival.
-
-**Command was the plausible exception** — throwing strikes should be
-independent of the opponent — and the data does not support even that
-at an adequate sample.
-
-Sample size compounds it: 37 pitchers, of whom 24 clear 200 BF in both
-leagues and only 14 clear 400. The hitter study had 47.
 
 ## What this means
 
