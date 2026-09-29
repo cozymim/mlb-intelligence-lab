@@ -75,19 +75,22 @@ watching a prospect does not fix that.
 
 ### Pitchers were attempted and the data said no
 
-The same pipeline, 38 transition pitchers, 73 hand-entered seasons.
+The same pipeline, 50 transition pitchers, 119 hand-entered seasons, 47 with MLB records.
 
 | | Hitters K% | Pitchers K% |
 |---|---|---|
-| Cross-league correlation | **0.77** | **0.08** |
+| Cross-league correlation | **0.77** | **0.15** |
 
-Pitcher BB% looked usable at r = 0.64 (p = 0.001) — until the sample
-floor was raised from 200 to 400 batters faced, where it collapsed to
-0.02. **Raising a floor removes noise and should strengthen a real
-relationship.** A result that depends on where the threshold sits is not
-a finding.
+Pitcher BB% reaches r = 0.59 (p < 0.001) at a 200 batters-faced floor,
+then falls to 0.22 at 400 and 0.38 at 600, neither significant. **A
+correlation that survives only at the loosest sample cut is an artifact
+of sample composition.** Low floors admit pitchers with small samples in
+both leagues, whose rates sit at extremes by chance.
 
-**No pitcher projection is published.** Reporting one from r = 0.08
+This was tested twice — 37 pitchers, then 47 after expanding the sample
+by hand. Same shape both times.
+
+**No pitcher projection is published.** Reporting one from r = 0.15
 would be presenting noise as a forecast.
 
 The negative result is useful twice over: it rules out a bad model, and

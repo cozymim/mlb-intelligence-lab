@@ -59,10 +59,14 @@ because both were already installed.
 
 Because pitchers were attempted and the data said no.
 
-Cross-league correlation is 0.77 for hitter K% and **0.08** for pitcher
-K%. Pitcher BB% looked usable at 0.64 with p = 0.001 — until the sample
-floor rose from 200 to 400 batters faced, where it collapsed to 0.02.
-Raising a floor removes noise and should strengthen a real relationship.
+Cross-league correlation is 0.77 for hitter K% and **0.15** for pitcher
+K%, with p = 0.44. Pitcher BB% reaches 0.59 at a 200 batters-faced floor
+and falls to 0.22 and 0.38 at 400 and 600, neither significant. A
+correlation that survives only at the loosest cut is sample composition,
+not a relationship.
+
+Tested twice: 37 pitchers, then 47 after expanding the sample by hand.
+The answer did not change.
 
 The explanation that fits: a hitter's contact ability is his own and
 survives the move, while a pitcher's strikeout rate depends on who he
