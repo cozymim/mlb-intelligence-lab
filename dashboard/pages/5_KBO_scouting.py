@@ -164,9 +164,9 @@ with tab_pitchers:
     st.subheader("Why there are no pitcher projections")
 
     st.write(
-        "The same pipeline was applied to pitchers: 38 foreign pitchers "
-        "who moved between the leagues, 73 KBO seasons entered by hand, "
-        "37 matched to MLB records. **No metric translated well enough "
+        "The same pipeline was applied to pitchers: 50 foreign pitchers "
+        "who moved between the leagues, 119 KBO seasons entered by hand, "
+        "47 matched to MLB records. **No metric translated well enough "
         "to project from.**")
 
     st.markdown("#### Hitters translate. Pitchers do not.")
@@ -174,24 +174,31 @@ with tab_pitchers:
         {"Group": "Hitters", "Metric": "K%", "Cross-league correlation": 0.77},
         {"Group": "Hitters", "Metric": "BB%", "Cross-league correlation": 0.32},
         {"Group": "Hitters", "Metric": "ISO", "Cross-league correlation": 0.28},
-        {"Group": "Pitchers", "Metric": "K%", "Cross-league correlation": 0.08},
-        {"Group": "Pitchers", "Metric": "BB%", "Cross-league correlation": 0.64},
-        {"Group": "Pitchers", "Metric": "HR%", "Cross-league correlation": 0.23},
+        {"Group": "Pitchers", "Metric": "K%", "Cross-league correlation": 0.15},
+        {"Group": "Pitchers", "Metric": "BB%", "Cross-league correlation": 0.59},
+        {"Group": "Pitchers", "Metric": "HR%", "Cross-league correlation": 0.25},
     ])
     st.dataframe(comp, use_container_width=True, hide_index=True)
 
     st.markdown("#### The one promising number did not survive a check")
     thresh = pd.DataFrame([
-        {"Batters faced floor": "200 (n=24)", "K%": 0.08, "BB%": 0.64},
-        {"Batters faced floor": "400 (n=14)", "K%": -0.05, "BB%": 0.02},
+        {"Batters faced floor": "200 (n=31)", "K%": 0.15, "BB%": 0.59},
+        {"Batters faced floor": "400 (n=18)", "K%": 0.06, "BB%": 0.22},
+        {"Batters faced floor": "600 (n=11)", "K%": 0.18, "BB%": 0.38},
     ])
     st.dataframe(thresh, use_container_width=True, hide_index=True)
 
     st.error(
-        "**BB% correlated at 0.64 with p = 0.001, then collapsed to 0.02 "
-        "when the sample floor was raised.** Raising a floor removes "
-        "noise and should STRENGTHEN a real relationship. A result that "
-        "depends on where the threshold is drawn is not a finding.")
+        "**BB% is significant only at the loosest cut** — 0.59 with "
+        "p < 0.001 at 200 batters faced, then 0.22 and 0.38 as the floor "
+        "rises, neither significant.\n\n"
+        "Low floors admit pitchers with small samples in both leagues, "
+        "whose rates sit at extremes by chance. Raising the floor removes "
+        "them and the relationship disappears. **A correlation that only "
+        "survives at the loosest sample cut is an artifact of sample "
+        "composition, not a finding.**\n\n"
+        "This was tested twice: 37 pitchers first, then 47 after the "
+        "sample was expanded by hand. Same shape both times.")
 
     st.markdown("#### Why hitters and pitchers differ")
     st.info(
@@ -209,10 +216,9 @@ with tab_pitchers:
         "at an adequate sample.")
 
     st.caption(
-        "The pitcher data is kept and the analysis is documented. If the "
-        "sample grows — 136 pitchers have MLB ids, only 37 are entered — "
-        "the question is worth revisiting. Reporting a projection from "
-        "r = 0.08 would be presenting noise as a forecast.")
+        "The sample WAS grown, from 37 pitchers to 47, and the answer did "
+        "not change. Reporting a projection from r = 0.15 would be "
+        "presenting noise as a forecast.")
 
     pairs = load("kbo_pitcher_pairs")
     with st.expander(f"The {len(pairs)} pitchers this rests on"):
