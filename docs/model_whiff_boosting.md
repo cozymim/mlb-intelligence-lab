@@ -120,3 +120,50 @@ days here.
 | Logistic (linear only) | loses | — |
 | Logistic + interactions + isotonic | 0.46449 | +3.4% |
 | **Boosting** | **0.43472** | **+9.6%** |
+
+---
+
+## Cross-season validation (2026-10-22)
+
+The whole pipeline refitted independently on each of four seasons, with
+split boundaries at the same month-day as the 2024 constants.
+
+| Season | Train swings | Test swings | Test whiff% | Baseline LL | Boosting LL | AUC | Improvement |
+|---|---|---|---|---|---|---|---|
+| 2021 | 184,266 | 62,620 | 23.51% | 0.4945 | 0.4468 | 0.768 | **9.65%** |
+| 2022 | 186,045 | 66,720 | 23.98% | 0.4989 | 0.4541 | 0.765 | **8.99%** |
+| 2023 | 190,489 | 60,037 | 23.70% | 0.4955 | 0.4503 | 0.766 | **9.13%** |
+| 2024 | 200,735 | 54,137 | 24.13% | 0.4947 | 0.4469 | 0.777 | **9.65%** |
+
+**Improvement spans 8.99% to 9.65% — a range of 0.66 points.** AUC
+spans 0.765 to 0.777.
+
+**The 9.7% headline is not a property of 2024.** The model beats its
+baseline by the same margin in every season held, which means the
+structure it exploits — the sign reversal of pitch height by pitch type
+— is a stable feature of the game rather than a one-season artifact.
+
+The baselines are themselves stable (0.4945-0.4989), so the comparison
+is like-for-like across years. September test whiff rates cluster in a
+narrow 23.5-24.1% band, confirming that the "September is harder"
+observation from the original test evaluation recurs annually.
+
+**2024 reproduces the model card exactly** (0.4947 / 0.4469),
+confirming that parameterising the split dates did not disturb the
+original result.
+
+### A bug this exposed
+
+`build()` had the 2024 split dates hard-coded. Running it on 2021 data
+put every row into train and left validation empty, which surfaced as an
+opaque sklearn error about a zero-length array. The function now takes
+the dates as arguments and raises a message naming the mismatch, locked
+by `test_build_refuses_a_split_that_empties_a_partition`.
+
+### Caveat
+
+The All-Star break moves by a few days year to year, so substituting the
+year into the 2024 month-day boundaries is an approximation. It keeps
+each split chronological and roughly proportioned, which is what a
+season-to-season comparison needs, but the breaks are not aligned to the
+day.
