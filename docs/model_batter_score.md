@@ -199,3 +199,79 @@ Locked in by `test_standardisation_uses_training_distribution`.
 - 343 of 425 batters qualify; the other 82 fall below a stabilization
   threshold and correctly receive no score.
 - Regression coefficients are associations, not causal effects.
+
+---
+
+## Cross-season stability (2026-10-22)
+
+Three separate questions, with three different answers.
+
+### 1. Are the learned weights stable across seasons?
+
+Refitting independently on each season:
+
+| Season | Chase% | Zone Swing% | Zone Contact% | Barrel% | R² |
+|---|---|---|---|---|---|
+| 2021 | -0.0086 | 0.0075 | 0.0174 | 0.0307 | 0.483 |
+| 2022 | -0.0026 | 0.0030 | 0.0198 | 0.0287 | 0.453 |
+| 2023 | -0.0068 | 0.0034 | 0.0161 | 0.0283 | 0.474 |
+| 2024 | -0.0075 | 0.0067 | 0.0184 | 0.0289 | 0.501 |
+
+Coefficient of variation: **Barrel% 3.7%, Zone Contact% 8.6%**, Chase%
+41.4%, Zone Swing% 43.8%.
+
+**The two largest weights are nearly fixed; the two smallest swing by a
+factor of three.** Chase% ranges -0.0026 to -0.0086 across seasons.
+
+**All four signs hold in every season**, so the direction of each effect
+is stable even where the magnitude is not. Small coefficients are less
+stable because estimation error is large relative to their size — the
+same pattern Day 36 found in the projection model.
+
+R² holds between 0.453 and 0.501.
+
+### 2. Does the choice of weights change the ranking?
+
+Scoring each season's players with each season's weights:
+
+| Players from | w2021 | w2022 | w2023 | w2024 |
+|---|---|---|---|---|
+| 2021 | 1.0000 | 0.9729 | 0.9926 | 0.9983 |
+| 2022 | 0.9707 | 1.0000 | 0.9812 | 0.9809 |
+| 2023 | 0.9906 | 0.9770 | 1.0000 | 0.9944 |
+| 2024 | 0.9976 | 0.9760 | 0.9927 | 1.0000 |
+
+**Every off-diagonal correlation is 0.970 or higher.**
+
+The unstable small coefficients barely matter, because Barrel% and Zone
+Contact% carry most of the weight and both are stable. **Which season's
+weights are used does not change who ranks where.**
+
+This matters more than the first result: the score is reproducible
+regardless of which season it was calibrated on.
+
+### 3. Does a player keep his score year to year?
+
+A different question — about players changing, not weights. Scored with
+2024 weights throughout, 145 batters qualified in all four seasons:
+
+| | 2021 | 2022 | 2023 | 2024 |
+|---|---|---|---|---|
+| 2021 | 1.000 | 0.649 | 0.661 | **0.633** |
+| 2022 | 0.649 | 1.000 | 0.748 | 0.720 |
+| 2023 | 0.661 | 0.748 | 1.000 | 0.714 |
+| 2024 | 0.633 | 0.720 | 0.714 | 1.000 |
+
+**Adjacent seasons correlate 0.71-0.75; three years apart falls to
+0.633.** The decay with distance is clear.
+
+**This is the weakest of the three results, and it is a property of
+baseball rather than of the method.** Roughly half of a season's score
+is durable skill; the rest is that season's variation — form, injury,
+age, and luck. Day 16 measured barrel rate as needing 150 batted balls
+to stabilise at all, so a single season is not a clean measurement
+either.
+
+**Consequence for interpretation: the score describes a player's season,
+not his ability.** Using one season's score as a forecast of the next
+would be over-reading it.
