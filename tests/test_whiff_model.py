@@ -168,3 +168,30 @@ def test_boosting_produces_probabilities_in_range():
 
     assert ((p >= 0) & (p <= 1)).all()
     assert len(p) == len(s)
+
+
+def test_build_refuses_a_split_that_empties_a_partition():
+    """Hard-coded 2024 dates against 2021 data put every row in train and
+    left validation empty, which surfaced as an opaque sklearn error
+    about a zero-length array."""
+    from src.models.whiff import build, split_dates_for
+
+    df = pitches([("foul", "FF", "R", 0.0, 2.5, 1.6, 3.4)] * 50)
+    df["game_date"] = "2021-05-01"
+    df["plate_x"] = 0.0
+    df["game_pk"] = range(len(df))
+    df["at_bat_number"] = 1
+    df["batter"] = 1
+    df["pitcher"] = 2
+
+    with pytest.raises(ValueError, match="split is empty"):
+        build(df)
+
+
+def test_split_dates_track_the_season():
+    from src.models.whiff import TRAIN_END, split_dates_for
+
+    train_end, val_end = split_dates_for(2021)
+    assert train_end.startswith("2021")
+    assert val_end.startswith("2021")
+    assert train_end[4:] == TRAIN_END[4:]

@@ -81,9 +81,18 @@ def prepare_swings(df: pd.DataFrame | None = None) -> pd.DataFrame:
     return s
 
 
-def make_split(swings: pd.DataFrame) -> TemporalSplit:
-    """Chronological split. The train/validation gap is the All-Star break."""
-    return split_by_date(swings, train_end=TRAIN_END, validation_end=VALIDATION_END)
+def make_split(swings: pd.DataFrame,
+               train_end: str | None = None,
+               validation_end: str | None = None) -> TemporalSplit:
+    """Chronological split. The train/validation gap is the All-Star break.
+
+    Dates default to the 2024 constants. Pass them explicitly to split a
+    different season — leaving them at 2024 puts every row of an earlier
+    season into train and leaves validation empty.
+    """
+    return split_by_date(swings,
+                         train_end=train_end or TRAIN_END,
+                         validation_end=validation_end or VALIDATION_END)
 
 
 def bucket_pitch_types(split: TemporalSplit) -> set[str]:
@@ -228,7 +237,21 @@ class WhiffModel:
         return predict_lookup(part, self.lookup_table, self.lookup_fallback)
 
 
-def build(df: pd.DataFrame | None = None) -> WhiffModel:
+def split_dates_for(season: int) -> tuple[str, str]:
+    """Train/validation boundaries for a season other than 2024.
+
+    The 2024 constants were chosen so the train/validation gap falls on
+    the All-Star break. That break moves by a few days year to year, so
+    substituting the year is an approximation — close enough that the
+    split stays chronological and roughly proportioned, which is what
+    the comparison needs. Documented rather than silently assumed.
+    """
+    return (f"{season}{TRAIN_END[4:]}", f"{season}{VALIDATION_END[4:]}")
+
+
+def build(df: pd.DataFrame | None = None,
+          train_end: str | None = None,
+          validation_end: str | None = None) -> WhiffModel:
     """Full pipeline: load, split, fit baseline and model, calibrate.
 
     The calibration set is the FIRST half of validation and evaluation
@@ -236,7 +259,17 @@ def build(df: pd.DataFrame | None = None) -> WhiffModel:
     rows is a form of leakage.
     """
     swings = prepare_swings(df)
-    split = make_split(swings)
+    split = make_split(swings, train_end, validation_end)
+    for name in ("train", "validation", "test"):
+        part = getattr(split, name)
+        if len(part) == 0:
+            raise ValueError(
+                f"{name} split is empty — the split dates "
+                f"({train_end or TRAIN_END}, {validation_end or VALIDATION_END}) "
+                f"do not fall inside this data's date range "
+                f"{swings['game_date'].min()} to {swings['game_date'].max()}. "
+                f"Use split_dates_for(season).")
+
     keep = bucket_pitch_types(split)
 
     X_train = build_features(split.train, keep)
