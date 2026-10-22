@@ -436,8 +436,10 @@ system.
 
 Specific limits worth naming:
 
-**One season for most analyses.** The whiff model, evaluation scores,
-scouting reports and similarity all run on 2024 only. Four seasons
+**One season for most analyses.** Evaluation scores, scouting reports
+and similarity all run on 2024 only. The whiff model is the exception:
+refitted independently on 2021-2024, it beats its baseline by 8.99% to
+9.65% in every season, so that result is not a property of one year. Four seasons
 (2021-2024) support the projection system, eleven (2014-2024) the KBO
 matching. Nothing here has been validated across eras.
 
