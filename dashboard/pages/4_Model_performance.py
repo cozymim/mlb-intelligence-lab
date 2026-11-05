@@ -80,9 +80,32 @@ with tab2:
     ])
     st.dataframe(proj, use_container_width=True, hide_index=True)
 
-    st.info("**Marcel beats last-season-only by 5.6% (K%) and 15.4% (BB%). "
-            "Skills beat Marcel by a further 2.2% and 4.9%.** Real, but "
-            "narrow.")
+    st.info("**Marcel beats last-season-only by 5.6% (K%) and 15.4% (BB%).** "
+            "That part holds. The skill contribution on top of it is the "
+            "2024 figure only — see below.")
+
+    st.markdown("#### The 2024 gain does not generalise")
+    across = pd.DataFrame([
+        {"Season": 2018, "K% gain": -0.030, "BB% gain": -0.005},
+        {"Season": 2019, "K% gain": 0.043, "BB% gain": -0.035},
+        {"Season": 2021, "K% gain": 0.009, "BB% gain": -0.026},
+        {"Season": 2022, "K% gain": 0.041, "BB% gain": 0.073},
+        {"Season": 2023, "K% gain": 0.027, "BB% gain": 0.006},
+        {"Season": 2024, "K% gain": 0.024, "BB% gain": 0.056},
+    ])
+    st.dataframe(across.style.format({"K% gain": "{:+.1%}",
+                                      "BB% gain": "{:+.1%}"}),
+                 use_container_width=True, hide_index=True)
+
+    st.error(
+        "**K%: mean +1.9%, positive in 5 of 6 seasons. "
+        "BB%: mean +1.1%, median +0.02%, positive in only 3 of 6.**\n\n"
+        "A median of 0.02% means the skill features add nothing in half "
+        "the seasons tested, and the mean is carried by 2022 alone. The "
+        "4.9% BB% figure from 2024 is the second-best of six.\n\n"
+        "Marcel's own MAE is stable across the same seasons "
+        "(0.0144-0.0163 for BB%), so the instability is in the skill "
+        "contribution, not the benchmark.")
 
     st.markdown("#### What failed")
     st.error(

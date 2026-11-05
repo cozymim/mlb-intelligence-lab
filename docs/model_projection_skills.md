@@ -109,3 +109,72 @@ correctly signed: making contact in the zone reduces strikeouts.
   own inputs. A weighted skill history is untested.
 - No age adjustment (inherited from the Marcel baseline).
 - Playing time is not projected.
+
+---
+
+## Cross-season validation (2026-11-05)
+
+The 2024 result above was repeated on six target seasons. **2020 is
+excluded** — a 60-game season distorts both its own rates and the Marcel
+windows it falls inside. Seasons before 2018 are excluded because the
+skill features need Statcast measurements that are not comparable before
+2015, and Marcel needs three prior seasons on top of that.
+
+| Season | n | Marcel K% | +skills | Gain | Marcel BB% | +skills | Gain |
+|---|---|---|---|---|---|---|---|
+| 2018 | 205 | 0.0249 | 0.0257 | **-3.0%** | 0.0155 | 0.0155 | **-0.5%** |
+| 2019 | 206 | 0.0273 | 0.0262 | +4.3% | 0.0152 | 0.0157 | **-3.5%** |
+| 2021 | 193 | 0.0263 | 0.0261 | +0.9% | 0.0153 | 0.0157 | **-2.6%** |
+| 2022 | 214 | 0.0311 | 0.0298 | +4.1% | 0.0163 | 0.0151 | +7.3% |
+| 2023 | 227 | 0.0276 | 0.0269 | +2.7% | 0.0145 | 0.0145 | +0.6% |
+| 2024 | 249 | 0.0271 | 0.0264 | +2.4% | 0.0144 | 0.0136 | +5.6% |
+
+**K%: mean +1.90%, median +2.56%, positive in 5 of 6.**
+**BB%: mean +1.13%, median +0.02%, positive in only 3 of 6.**
+
+### The BB% result does not hold up
+
+A median of 0.02% means the skill features add **nothing** in half the
+seasons tested. The +1.13% mean is carried by 2022 (+7.3%) almost alone.
+
+**The 4.9% quoted from 2024 is the second-best of six seasons.**
+Presenting it as the model's performance was reading a good year as a
+general result.
+
+### Marcel itself is stable
+
+| Metric | Range across seasons |
+|---|---|
+| K% | 0.0249 – 0.0311 |
+| BB% | 0.0144 – 0.0163 |
+
+Season difficulty varies, but predictably. **The instability is in the
+skill contribution, not in the benchmark**, so the comparison is fair
+and the problem is ours.
+
+### Why this was foreseeable
+
+Day 36 already showed the gain concentrating entirely in the quartile
+where Marcel fails worst, and making projections slightly **worse**
+where Marcel is already accurate. If which players fall in that quartile
+varies year to year — and it does — then so does the average gain.
+
+The five-feature version of this model overfit 254 rows at a condition
+number below the textbook threshold. The two-feature version is more
+honest but still thin.
+
+### Contrast with the whiff model
+
+| | Range | Seasons where it loses |
+|---|---|---|
+| Whiff model | 8.99% – 9.65% | **0 of 4** |
+| Projection, K% | -3.0% – +4.3% | 1 of 6 |
+| Projection, BB% | -3.5% – +7.3% | **3 of 6** |
+
+The whiff model found a structural feature of the game — the sign
+reversal of pitch height by pitch type — and beats its baseline by the
+same margin every year. The projection model found a weak signal that
+appears in some seasons and not others.
+
+**Both results are reported. Only one of them is a model worth
+trusting.**

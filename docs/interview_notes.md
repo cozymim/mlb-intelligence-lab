@@ -17,7 +17,7 @@ Every modelling decision is documented, including the ones that failed.
 | Model | Result |
 |---|---|
 | P(Whiff given Swing) | log loss 0.44690 on a held-out September test set, **9.7% better** than a lookup baseline, AUC 0.777 |
-| Season projection | K% MAE 0.0265, BB% 0.0137 — beats Marcel by 2.2% and 4.9% |
+| Season projection | Beats Marcel by +1.9% (K%) and +1.1% (BB%) averaged over six seasons; the 2024-only figures are 2.2% and 4.9% |
 | Batter evaluation | weights learned from wOBA; rank correlation 0.990 under resampling |
 | KBO translation | mu = -0.427, tau = 0.229 across 47 transition players |
 

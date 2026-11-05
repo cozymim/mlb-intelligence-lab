@@ -339,6 +339,38 @@ grid, so no tuning budget was warranted.
 
 ---
 
+## Projection system, and a result that did not generalise
+
+Marcel — Tom Tango's benchmark, described by him as the minimum
+competence expected of any forecaster — implemented from published
+sources and verified, then improved with Statcast skill rates.
+
+**On 2024 the skill features beat Marcel by 2.2% (K%) and 4.9% (BB%).**
+Repeating the evaluation across six target seasons tells a different
+story:
+
+| | Mean gain | Median | Positive in |
+|---|---|---|---|
+| K% | **+1.9%** | +2.6% | 5 of 6 seasons |
+| BB% | **+1.1%** | **+0.02%** | **3 of 6 seasons** |
+
+**A median of 0.02% means the skill features add nothing in half the
+seasons tested.** The mean is carried by 2022 alone, and the 4.9% from
+2024 is the second-best of six.
+
+Marcel's own error is stable across the same seasons, so the
+instability is in the skill contribution, not the benchmark.
+
+**The 2024 figure was reported first and corrected after testing, rather
+than quoted as the model's performance.** Details in
+[docs/model_projection_skills.md](docs/model_projection_skills.md).
+
+Compare the whiff model, which beats its baseline by 8.99% to 9.65% in
+every season held and never loses. One model found structure; the other
+found a weak signal.
+
+---
+
 ## Research findings
 
 Three questions answered, recorded in
