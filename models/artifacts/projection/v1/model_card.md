@@ -90,10 +90,39 @@ Five-fold cross-validated MAE, 254 batters with 200+ PA in 2024:
 | **Marcel + skills** | **0.0137** | **0.0172** | **0.767** |
 
 **Marcel beats last-season-only by 5.6% (K%) and 15.4% (BB%). Skills
-beat Marcel by a further 2.2% and 4.9%.**
+beat Marcel by a further 2.2% and 4.9% — in 2024.**
 
-The honest summary: a verified implementation of the standard baseline,
-improved narrowly by Statcast skill rates.
+### That 2024 figure does not generalise
+
+Repeating the evaluation on six target seasons (2018, 2019, 2021-2024;
+2020 excluded as a 60-game season):
+
+| Season | K% gain | BB% gain |
+|---|---|---|
+| 2018 | **-3.0%** | **-0.5%** |
+| 2019 | +4.3% | **-3.5%** |
+| 2021 | +0.9% | **-2.6%** |
+| 2022 | +4.1% | +7.3% |
+| 2023 | +2.7% | +0.6% |
+| 2024 | +2.4% | +5.6% |
+
+**K%: mean +1.9%, positive in 5 of 6 seasons.**
+**BB%: mean +1.1%, median +0.02%, positive in only 3 of 6.**
+
+A median of 0.02% means skills add nothing in half the seasons tested.
+The +1.1% mean is carried by 2022 alone.
+
+**2024 was a good year for this model, and the 4.9% BB% figure is the
+second-best of six.** Presenting it as the model's performance
+overstates what it does.
+
+Marcel's own MAE is stable across the same seasons (BB% 0.0144-0.0163,
+K% 0.0249-0.0311), so the instability is in the skill contribution, not
+the benchmark.
+
+**Honest summary: a verified implementation of the standard baseline,
+improved by Statcast skill rates in most seasons for K% and in about
+half for BB%, by amounts that vary more than the average suggests.**
 
 ### BB% gains more at every stage
 
