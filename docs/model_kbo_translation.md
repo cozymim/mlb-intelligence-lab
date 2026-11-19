@@ -202,3 +202,38 @@ support it.
 
 Reporting a pitcher projection from these correlations would be
 presenting noise as a forecast.
+
+## Sample sensitivity (Day 53)
+
+Cross-season validation is impossible here — the hierarchy is fit on
+career totals, not season lines. Sample sensitivity is the available
+substitute: refit five times, each dropping a different fifth of the
+47 players.
+
+| Fold dropped | n | mu | tau |
+|---|---|---|---|
+| 0 | 38 | -0.437 | 0.228 |
+| 1 | 38 | -0.432 | 0.217 |
+| 2 | 38 | -0.428 | 0.231 |
+| 3 | 38 | -0.420 | 0.257 |
+| 4 | 38 | -0.412 | 0.219 |
+| **full** | **47** | **-0.427** | **0.229** |
+
+**mu is stable.** Range 0.025 logit, which moves the projection for a
+14% KBO strikeout hitter from 19.73% to 20.13% — 0.4pp. No subset of
+players is driving the central estimate.
+
+**tau is less stable**, 0.217 to 0.257 — a 17% relative range against
+mu's 3%. Because tau sets interval width, the practical effect is a
+95% interval of 13.6pp at its narrowest and 16.1pp at its widest for
+that same hitter.
+
+The direction is conservative: dropping players widens the interval
+rather than narrowing it. But this test cannot rule out that tau is
+underestimated at n=47. Treat the published intervals as a floor on
+uncertainty, not a measurement of it.
+
+**Contrast with the projection system**, validated the same week: that
+model's gain did not survive refitting on other seasons (BB% median
++0.02% across six). This one survives resampling. The difference is
+the reason both were tested rather than assumed.
