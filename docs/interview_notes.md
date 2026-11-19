@@ -18,7 +18,7 @@ Every modelling decision is documented, including the ones that failed.
 |---|---|
 | P(Whiff given Swing) | log loss 0.44690 on a held-out September test set, **9.7% better** than a lookup baseline, AUC 0.777 |
 | Season projection | Beats Marcel by +1.9% (K%) and +1.1% (BB%) averaged over six seasons; the 2024-only figures are 2.2% and 4.9% |
-| Batter evaluation | weights learned from wOBA; rank correlation 0.990 under resampling |
+| Batter evaluation | weights learned from wOBA; rank correlation 0.992 under resampling |
 | KBO translation | mu = -0.427, tau = 0.229 across 47 transition players |
 
 ## "What went wrong?"
@@ -37,7 +37,7 @@ not from choosing an algorithm.**
 Power-heavy and contact-heavy rankings correlated at Spearman 0.053 and
 shared two names in their top tens. The score measured my weighting
 choice, not the batter. Rebuilt with weights regressed on observed wOBA:
-0.053 becomes 0.990.
+0.053 becomes 0.992.
 
 **A five-feature projection model gained nothing.** It scored 3.7%
 better in training and identical to the baseline under cross-validation.
@@ -129,3 +129,17 @@ register does not carry.
   intervals stay wide no matter how many KBO plate appearances a prospect
   accumulates.
 - Why boosting needed no calibration while the logistic model did.
+
+
+## A plausibility check that found a bug (Day 54)
+
+Running the undervalued-hitter test, league wOBA came out at .331 for
+2023. Savant publishes .316. The test result did not depend on the
+level, so it would have been easy to move on. Breaking the numerator
+down by event showed Statcast's `woba_value` crediting reaching on
+error, fielder's choice and intentional walks. After the fix, league
+wOBA matched FanGraphs to within .003, R-squared rose for both the
+batter and pitcher scores, and the error turned out to favour
+ground-ball and fast hitters. The lesson I'd give: check a pipeline's
+league-level output against a published number before trusting any
+player-level output from it.

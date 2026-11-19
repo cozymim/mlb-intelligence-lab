@@ -146,39 +146,39 @@ with tab3:
 
     sens = pd.DataFrame([
         {"Version": "Arbitrary equal weights", "Min rank correlation": 0.053},
-        {"Version": "Weights learned from wOBA", "Min rank correlation": 0.990},
+        {"Version": "Weights learned from wOBA", "Min rank correlation": 0.992},
     ])
     st.dataframe(sens, width="stretch", hide_index=True)
 
     st.success(
         "Regressing observed wOBA on standardised skill rates anchors the "
         "weights to something external. Rank correlation across 5-fold "
-        "resampling rises from 0.053 to 0.990.")
+        "resampling rises from 0.053 to 0.992.")
 
     st.markdown("#### Learned weights")
     c1, c2 = st.columns(2)
     with c1:
         st.caption("**Batters** — wOBA per 1 sd")
         st.dataframe(pd.DataFrame([
-            {"Skill": "Barrel%", "Weight": 0.0289},
-            {"Skill": "Zone Contact%", "Weight": 0.0184},
-            {"Skill": "Chase%", "Weight": -0.0075},
-            {"Skill": "Zone Swing%", "Weight": 0.0067},
+            {"Skill": "Barrel%", "Weight": 0.0292},
+            {"Skill": "Zone Contact%", "Weight": 0.0183},
+            {"Skill": "Chase%", "Weight": -0.0084},
+            {"Skill": "Zone Swing%", "Weight": 0.0068},
         ]), width="stretch", hide_index=True)
-        st.caption("Power carries roughly four times the weight of plate "
-                   "discipline. R-squared 0.50.")
+        st.caption("Power carries roughly three and a half times the weight of plate "
+                   "discipline. R-squared 0.52.")
     with c2:
         st.caption("**Pitchers** — wOBA allowed per 1 sd")
         st.dataframe(pd.DataFrame([
             {"Skill": "K%", "Weight": -0.0196},
-            {"Skill": "Barrel%", "Weight": 0.0106},
-            {"Skill": "BB%", "Weight": 0.0098},
-            {"Skill": "HardHit%", "Weight": 0.0052},
-            {"Skill": "GB%", "Weight": 0.0018},
-            {"Skill": "Chase%", "Weight": -0.0007},
+            {"Skill": "Barrel%", "Weight": 0.0109},
+            {"Skill": "BB%", "Weight": 0.0091},
+            {"Skill": "HardHit%", "Weight": 0.0050},
+            {"Skill": "Chase%", "Weight": -0.0010},
+            {"Skill": "GB%", "Weight": 0.0004},
         ]), width="stretch", hide_index=True)
         st.caption("Strikeouts carry roughly twice the weight of barrel "
-                   "suppression. R-squared 0.52.")
+                   "suppression. R-squared 0.54.")
 
     st.info(
         "**R-squared near 0.50 is the honest number.** The unexplained half "

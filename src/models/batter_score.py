@@ -55,9 +55,9 @@ QUALIFICATION = {
 
 def build_profiles(df: pd.DataFrame, min_pitches: int = MIN_PITCHES) -> pd.DataFrame:
     """Skill rates plus observed wOBA, one row per batter."""
-    from src.data.validation import plate_appearances
+    from src.data.validation import clean_woba, plate_appearances
 
-    pa = plate_appearances(df)
+    pa = clean_woba(plate_appearances(df))
     woba = pa.groupby("batter").agg(
         woba_num=("woba_value", "sum"), woba_den=("woba_denom", "sum"))
     woba["woba"] = (pd.to_numeric(woba["woba_num"], errors="coerce")

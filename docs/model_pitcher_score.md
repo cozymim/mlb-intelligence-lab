@@ -30,11 +30,11 @@ wOBA allowed per 1 standard deviation:
 | Skill | Coefficient | Relative |
 |---|---|---|
 | K% | **-0.0196** | 100% |
-| Barrel% | +0.0106 | 54% |
-| BB% | +0.0098 | 50% |
-| HardHit% | +0.0052 | 27% |
-| GB% | +0.0018 | 9% |
-| Chase% | -0.0007 | 4% |
+| Barrel% | +0.0109 | 56% |
+| BB% | +0.0091 | 46% |
+| HardHit% | +0.0050 | 26% |
+| Chase% | -0.0010 | 5% |
+| GB% | +0.0004 | 2% |
 
 **Strikeouts carry roughly twice the weight of barrel suppression.** A
 strikeout is a certain out; a batted ball can become a hit.
@@ -44,9 +44,12 @@ allowed, walks and hard contact raise it.
 
 ### Chase% collapses in the presence of K%
 
-Its individual correlation with wOBA allowed is -0.17, but its
-coefficient is -0.0007. Chase% correlates 0.36 with K% — pitchers who
-generate chases also generate strikeouts — so K% absorbs the effect.
+Its individual correlation with wOBA allowed is -0.37, but its
+coefficient is -0.0010. Chase% correlates 0.36 with K% — pitchers who
+generate chases also generate strikeouts — so K% absorbs the effect. (This
+correlation was stated as -0.17 before the Day 54 wOBA correction. That
+figure could not be reproduced, and the correction alone is unlikely to
+explain a change this large.)
 
 **Chase% is not useless; it adds nothing once K% is known.** A
 coefficient cannot be read in isolation from the other features.
@@ -56,7 +59,7 @@ removed 12 rare-pitch parameters from the whiff model.
 
 ### GB% is weak for the same structural reason
 
-Coefficient 0.0018 despite Day 22 emphasising ground-ball induction.
+Coefficient 0.0004 despite Day 22 emphasising ground-ball induction.
 GB% correlates -0.48 with Barrel%: inducing grounders suppresses
 barrels, and the Barrel% coefficient already carries that. The outcome
 (barrels prevented) is more direct than the mechanism (grounders).
@@ -65,14 +68,18 @@ barrels, and the Barrel% coefficient already carries that. The outcome
 
 | | Value |
 |---|---|
-| Minimum 5-fold rank correlation | **0.985** |
-| Coefficient CV, K% | 3% |
-| Coefficient CV, Barrel% | 11% |
+| Minimum 5-fold rank correlation | **0.984** |
+| Coefficient CV, K% | 2.5% |
+| Coefficient CV, Barrel% | 11.8% |
 
-Coefficient ordering is stable across folds. Chase% and GB% are the
-least stable in relative terms, consistent with their near-zero size.
+**Coefficient ordering is not stable across folds** after the Day 54
+correction. Chase% and GB% are both within 0.001 of zero (CV 97% and
+285%). Before the correction GB% (0.0018) sat clearly above Chase%
+(0.0007), and the ordering held. The other four weights have CVs of
+2.5% to 15.6%. The ranking of pitchers is unaffected: minimum rank
+correlation 0.984. This strengthens the case for removing both.
 
-## R-squared 0.524
+## R-squared 0.542
 
 Close to the batter model's 0.501.
 
@@ -101,3 +108,12 @@ appearances. 368 of 855 pitchers qualify.
 - Role is not controlled. Starters face lineups multiple times;
   relievers do not. The score does not distinguish them.
 - Regression coefficients are associations, not causal effects.
+
+
+## Correction (Day 54): wOBA definition
+
+wOBA allowed is computed with the same corrected definition as the
+batter score; see `docs/model_batter_score.md`. Recomputed on 2024:
+R-squared rose from 0.524 to 0.542. K% remains the dominant weight and
+every sign is unchanged. GB% fell from 9% to 2% of the K% weight and
+now ranks below Chase%; both remain negligible.

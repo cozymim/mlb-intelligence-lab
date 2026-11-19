@@ -115,12 +115,12 @@ wOBA change per 1 standard deviation of each skill:
 
 | Skill | Coefficient | Relative |
 |---|---|---|
-| Barrel% | **+0.0289** | 100% |
-| Zone Contact% | +0.0184 | 64% |
-| Chase% | -0.0075 | 26% |
-| Zone Swing% | +0.0067 | 23% |
+| Barrel% | **+0.0292** | 100% |
+| Zone Contact% | +0.0183 | 63% |
+| Chase% | -0.0084 | 29% |
+| Zone Swing% | +0.0068 | 23% |
 
-**Power carries roughly four times the weight of plate discipline.**
+**Power carries roughly three and a half times the weight of plate discipline.**
 The equal weighting assumed a day earlier was not close.
 
 All signs are baseball-correct: chasing hurts, the rest help.
@@ -135,7 +135,7 @@ almost nothing to production once the other three are known.
 
 | | Arbitrary weights | Learned weights |
 |---|---|---|
-| Minimum rank correlation | **0.053** | **0.990** |
+| Minimum rank correlation | **0.053** | **0.992** |
 
 Coefficient stability across folds:
 
@@ -158,9 +158,9 @@ resampled.
 This satisfies two of the three justifications CLAUDE.md requires —
 statistical grounding and sensitivity testing — rather than none.
 
-## R-squared is 0.50, and that is the honest number
+## R-squared is 0.52, and that is the honest number
 
-Four skill rates explain half the variance in wOBA. The remainder
+Four skill rates explain just over half the variance in wOBA. The remainder
 includes speed, batted-ball direction, opposing pitcher quality, and
 luck — wOBA depends on whether batted balls found gaps, which skill
 does not fully determine.
@@ -172,14 +172,14 @@ suggest outcome information had leaked into the features.
 
 | Player | Predicted | Actual wOBA | Gap |
 |---|---|---|---|
-| Judge | 0.453 | 0.497 | -0.044 |
-| Stanton | 0.381 | 0.341 | **+0.040** |
-| Seager | 0.406 | 0.379 | +0.027 |
+| Judge | 0.446 | 0.475 | -0.029 |
+| Stanton | 0.371 | 0.330 | **+0.042** |
+| Seager | 0.397 | 0.365 | +0.031 |
 
-**Stanton has a 20.9% barrel rate and a 0.341 wOBA.** He is slow: no
+**Stanton has a 20.9% barrel rate and a 0.330 wOBA.** He is slow: no
 infield hits, and well-struck balls are caught. The model has no speed
 input and cannot see this. That is a concrete example of what the
-missing 50% contains.
+missing 48% contains.
 
 ## Interpretation
 
@@ -212,23 +212,23 @@ Refitting independently on each season:
 
 | Season | Chase% | Zone Swing% | Zone Contact% | Barrel% | R² |
 |---|---|---|---|---|---|
-| 2021 | -0.0086 | 0.0075 | 0.0174 | 0.0307 | 0.483 |
-| 2022 | -0.0026 | 0.0030 | 0.0198 | 0.0287 | 0.453 |
-| 2023 | -0.0068 | 0.0034 | 0.0161 | 0.0283 | 0.474 |
-| 2024 | -0.0075 | 0.0067 | 0.0184 | 0.0289 | 0.501 |
+| 2021 | -0.0095 | 0.0077 | 0.0165 | 0.0300 | 0.503 |
+| 2022 | -0.0031 | 0.0030 | 0.0193 | 0.0288 | 0.480 |
+| 2023 | -0.0070 | 0.0032 | 0.0159 | 0.0288 | 0.494 |
+| 2024 | -0.0084 | 0.0068 | 0.0183 | 0.0292 | 0.520 |
 
-Coefficient of variation: **Barrel% 3.7%, Zone Contact% 8.6%**, Chase%
-41.4%, Zone Swing% 43.8%.
+Coefficient of variation: **Barrel% 1.9%, Zone Contact% 9.1%**, Chase%
+40.1%, Zone Swing% 46.7%.
 
 **The two largest weights are nearly fixed; the two smallest swing by a
-factor of three.** Chase% ranges -0.0026 to -0.0086 across seasons.
+factor of three.** Chase% ranges -0.0031 to -0.0095 across seasons.
 
 **All four signs hold in every season**, so the direction of each effect
 is stable even where the magnitude is not. Small coefficients are less
 stable because estimation error is large relative to their size — the
 same pattern Day 36 found in the projection model.
 
-R² holds between 0.453 and 0.501.
+R² holds between 0.480 and 0.520.
 
 ### 2. Does the choice of weights change the ranking?
 
@@ -236,12 +236,12 @@ Scoring each season's players with each season's weights:
 
 | Players from | w2021 | w2022 | w2023 | w2024 |
 |---|---|---|---|---|
-| 2021 | 1.0000 | 0.9729 | 0.9926 | 0.9983 |
-| 2022 | 0.9707 | 1.0000 | 0.9812 | 0.9809 |
-| 2023 | 0.9906 | 0.9770 | 1.0000 | 0.9944 |
-| 2024 | 0.9976 | 0.9760 | 0.9927 | 1.0000 |
+| 2021 | 1.0000 | 0.9681 | 0.9901 | 0.9975 |
+| 2022 | 0.9671 | 1.0000 | 0.9832 | 0.9801 |
+| 2023 | 0.9874 | 0.9796 | 1.0000 | 0.9930 |
+| 2024 | 0.9962 | 0.9751 | 0.9914 | 1.0000 |
 
-**Every off-diagonal correlation is 0.970 or higher.**
+**Every off-diagonal correlation is 0.967 or higher.**
 
 The unstable small coefficients barely matter, because Barrel% and Zone
 Contact% carry most of the weight and both are stable. **Which season's
@@ -257,13 +257,17 @@ A different question — about players changing, not weights. Scored with
 
 | | 2021 | 2022 | 2023 | 2024 |
 |---|---|---|---|---|
-| 2021 | 1.000 | 0.649 | 0.661 | **0.633** |
-| 2022 | 0.649 | 1.000 | 0.748 | 0.720 |
-| 2023 | 0.661 | 0.748 | 1.000 | 0.714 |
-| 2024 | 0.633 | 0.720 | 0.714 | 1.000 |
+| 2021 | 1.000 | 0.654 | 0.667 | **0.639** |
+| 2022 | 0.654 | 1.000 | 0.751 | 0.723 |
+| 2023 | 0.667 | 0.751 | 1.000 | 0.720 |
+| 2024 | 0.639 | 0.723 | 0.720 | 1.000 |
 
-**Adjacent seasons correlate 0.71-0.75; three years apart falls to
-0.633.** The decay with distance is clear.
+**Adjacent seasons correlate 0.65-0.75; three years apart falls to
+0.639.** On average the correlation falls with distance (0.708 one
+season apart, 0.695 at two, 0.639 at three), but not in every row:
+2021 correlates more with 2023 than with 2022. An earlier version of
+this paragraph stated 0.71-0.75 and called the decay clear; neither
+matched its own table.
 
 **This is the weakest of the three results, and it is a property of
 baseball rather than of the method.** Roughly half of a season's score
@@ -275,3 +279,27 @@ either.
 **Consequence for interpretation: the score describes a player's season,
 not his ability.** Using one season's score as a forecast of the next
 would be over-reading it.
+
+
+## Correction (Day 54): wOBA definition
+
+Statcast's `woba_value` credits events that the wOBA definition treats
+as outs or excludes: reaching on error, fielder's choice, catcher's
+interference, intentional walks, and some bunts and dropped third
+strikes. Summed as-is, 2023 league wOBA came out at .331 against .316
+on Baseball Savant and .318 on FanGraphs. The excess was traced event
+by event. `clean_woba()` in `src/data/validation.py` now applies the
+standard definition, and every wOBA in the project goes through it.
+
+The error was not neutral. Reaching on error happens most to hitters
+who put the ball on the ground and run well, so it credited them for
+fielders' mistakes.
+
+Every figure in this document was recomputed after the fix. The
+conclusions did not change. R-squared rose in every season, which is
+what removing a source of noise unrelated to skill should do.
+
+Remaining difference from FanGraphs (about .003) comes from Statcast's
+rounded event weights (0.9 for a single against 2023's 0.883). It is
+close to proportional across hitters and is left as a documented
+approximation.

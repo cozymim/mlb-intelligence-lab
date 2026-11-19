@@ -57,12 +57,12 @@ QUALIFICATION = {"n_swings": 200, "bbe": 100, "pa": 200}
 
 def build_profiles(df: pd.DataFrame) -> pd.DataFrame:
     """Pitcher skill rates plus wOBA allowed, one row per pitcher."""
-    from src.data.validation import plate_appearances
+    from src.data.validation import clean_woba, plate_appearances
     from src.features.batted_ball import add_quality_flags, batted_ball_events
     from src.features.pitch_outcomes import add_batted_ball_types
     from src.features.plate_discipline import add_discipline_flags
 
-    pa = plate_appearances(df)
+    pa = clean_woba(plate_appearances(df))
     f = add_discipline_flags(df)
     bbe = add_batted_ball_types(add_quality_flags(batted_ball_events(df)))
 
