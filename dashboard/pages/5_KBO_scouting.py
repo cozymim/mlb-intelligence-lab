@@ -272,3 +272,18 @@ attribute it. Recorded as an observation, not a finding.
 
 **K% only.** BB% and ISO are not projectable from this data.
     """)
+
+    st.markdown("#### How stable are these intervals?")
+    st.markdown(
+        "The model was refit five times, each time leaving out a different "
+        "fifth of the 47 players. The central translation barely moved: for a "
+        "hitter with a 14% KBO strikeout rate, the projected MLB rate stayed "
+        "between 19.7% and 20.1%."
+    )
+    st.warning(
+        "The spread between players (tau) was less stable. For that same "
+        "hitter, the 95% interval ran from 13.6 to 16.1 percentage points wide "
+        "depending on which players were left out. Treat the intervals shown "
+        "on this page as a floor on uncertainty, not an exact measurement. "
+        "47 players is not enough to pin the spread down precisely."
+    )
