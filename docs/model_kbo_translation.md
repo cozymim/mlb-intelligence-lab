@@ -210,14 +210,11 @@ career totals, not season lines. Sample sensitivity is the available
 substitute: refit five times, each dropping a different fifth of the
 47 players.
 
-| Fold dropped | n | mu | tau |
-|---|---|---|---|
-| 0 | 38 | -0.437 | 0.228 |
-| 1 | 38 | -0.432 | 0.217 |
-| 2 | 38 | -0.428 | 0.231 |
-| 3 | 38 | -0.420 | 0.257 |
-| 4 | 38 | -0.412 | 0.219 |
-| **full** | **47** | **-0.427** | **0.229** |
+| | mu | tau |
+|---|---|---|
+| Five refits (n=37-38 each), mean | -0.426 | 0.230 |
+| Five refits, range | -0.437 to -0.412 | 0.217 to 0.257 |
+| Full sample (n=47) | -0.427 | 0.229 |
 
 **mu is stable.** Range 0.025 logit, which moves the projection for a
 14% KBO strikeout hitter from 19.73% to 20.13% — 0.4pp. No subset of
