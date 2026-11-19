@@ -65,7 +65,7 @@ if choice in outcomes.index.get_level_values(0):
             "usage": "{:.1%}", "velo": "{:.1f}", "velo_vs_lg": "{:+.1f}",
             "zone_pct": "{:.1%}", "whiff_pct": "{:.1%}",
             "whiff_vs_lg": "{:+.1%}", "swings": "{:.0f}"}),
-        use_container_width=True)
+        width="stretch")
 
     thin = arsenal[arsenal["swings"] < 40]
     if len(thin):
@@ -94,7 +94,7 @@ if len(u):
     diff = (pivot - lg_pivot.reindex(pivot.index)).dropna(how="all")
     st.dataframe(diff.style.format("{:+.1%}", na_rep="—")
                  .background_gradient(cmap="RdBu_r", vmin=-0.2, vmax=0.2),
-                 use_container_width=True)
+                 width="stretch")
     st.caption("Difference from league usage in each count state. Positive "
                "means thrown more often than league. The two-strike column "
                "identifies the out pitch.")

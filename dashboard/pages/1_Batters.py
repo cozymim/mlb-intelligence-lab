@@ -59,7 +59,7 @@ distances = build_distance_matrix(batters)
 comps = nearest(choice, distances, batters, n=8)
 comps.insert(0, "name", batters.loc[comps.index, "name"])
 st.dataframe(comps[["name", "distance"] + SIMILARITY_FEATURES].round(3),
-             use_container_width=True, hide_index=True)
+             width="stretch", hide_index=True)
 
 dom = dimension_dominance(choice, batters)
 top_axis, top_share = dom.index[0], dom.iloc[0]

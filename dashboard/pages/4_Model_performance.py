@@ -39,7 +39,7 @@ with tab1:
         {"Model": "Gradient boosting", "Log Loss": 0.44690,
          "Brier": 0.14225, "AUC": 0.77741, "ECE": 0.00954},
     ])
-    st.dataframe(whiff, use_container_width=True, hide_index=True)
+    st.dataframe(whiff, width="stretch", hide_index=True)
     st.success("**9.7% better log loss than the baseline**, and better "
                "calibrated.")
 
@@ -78,7 +78,7 @@ with tab2:
         {"Model": "Marcel + Statcast skills", "K% MAE": 0.0265,
          "BB% MAE": 0.0137},
     ])
-    st.dataframe(proj, use_container_width=True, hide_index=True)
+    st.dataframe(proj, width="stretch", hide_index=True)
 
     st.info("**Marcel beats last-season-only by 5.6% (K%) and 15.4% (BB%).** "
             "That part holds. The skill contribution on top of it is the "
@@ -95,7 +95,7 @@ with tab2:
     ])
     st.dataframe(across.style.format({"K% gain": "{:+.1%}",
                                       "BB% gain": "{:+.1%}"}),
-                 use_container_width=True, hide_index=True)
+                 width="stretch", hide_index=True)
 
     st.error(
         "**K%: mean +1.9%, positive in 5 of 6 seasons. "
@@ -126,7 +126,7 @@ with tab2:
         {"Marcel error quartile": "0.022-0.039", "Mean improvement": 0.0025},
         {"Marcel error quartile": "0.039-0.120", "Mean improvement": 0.0045},
     ])
-    st.dataframe(quart, use_container_width=True, hide_index=True)
+    st.dataframe(quart, width="stretch", hide_index=True)
     st.caption("**Where Marcel is already accurate, skills make it worse.** "
                "The overall gain nets damage to good projections against "
                "repair of bad ones. For acquisition work that is a "
@@ -148,7 +148,7 @@ with tab3:
         {"Version": "Arbitrary equal weights", "Min rank correlation": 0.053},
         {"Version": "Weights learned from wOBA", "Min rank correlation": 0.990},
     ])
-    st.dataframe(sens, use_container_width=True, hide_index=True)
+    st.dataframe(sens, width="stretch", hide_index=True)
 
     st.success(
         "Regressing observed wOBA on standardised skill rates anchors the "
@@ -164,7 +164,7 @@ with tab3:
             {"Skill": "Zone Contact%", "Weight": 0.0184},
             {"Skill": "Chase%", "Weight": -0.0075},
             {"Skill": "Zone Swing%", "Weight": 0.0067},
-        ]), use_container_width=True, hide_index=True)
+        ]), width="stretch", hide_index=True)
         st.caption("Power carries roughly four times the weight of plate "
                    "discipline. R-squared 0.50.")
     with c2:
@@ -176,7 +176,7 @@ with tab3:
             {"Skill": "HardHit%", "Weight": 0.0052},
             {"Skill": "GB%", "Weight": 0.0018},
             {"Skill": "Chase%", "Weight": -0.0007},
-        ]), use_container_width=True, hide_index=True)
+        ]), width="stretch", hide_index=True)
         st.caption("Strikeouts carry roughly twice the weight of barrel "
                    "suppression. R-squared 0.52.")
 

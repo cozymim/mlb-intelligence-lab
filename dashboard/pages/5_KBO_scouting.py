@@ -65,7 +65,7 @@ with tab_players:
             "KBO K%": "{:.1%}", "Projected MLB K%": "{:.1%}",
             "Low": "{:.1%}", "High": "{:.1%}",
             "P(better than league)": "{:.0%}"}),
-        use_container_width=True, hide_index=True, height=520)
+        width="stretch", hide_index=True, height=520)
 
     st.caption("Sorted by projected MLB strikeout rate. League average is "
                "22.5%. The **Low-High** columns are an 80% credible "
@@ -143,7 +143,7 @@ with tab_evidence:
         .style.format({"kbo_k": "{:.1%}", "mlb_k": "{:.1%}",
                        "expected_kbo_k": "{:.1%}", "residual": "{:+.1%}",
                        "kbo_pa": "{:.0f}", "mlb_pa": "{:.0f}"}),
-        use_container_width=True, hide_index=True, height=420)
+        width="stretch", hide_index=True, height=420)
 
     st.caption("`expected_kbo_k` applies the league factor to the player's "
                "actual MLB rate. `residual` is how far he landed from it — "
@@ -154,7 +154,7 @@ with tab_evidence:
         {"MLB K%": f"{k:.0%}", "Implied KBO K%": f"{expected_kbo_k(k):.1%}",
          "Ratio": f"{expected_kbo_k(k) / k:.2f}"}
         for k in [0.15, 0.20, 0.25, 0.30, 0.35]])
-    st.dataframe(ratio, use_container_width=True, hide_index=True)
+    st.dataframe(ratio, width="stretch", hide_index=True)
     st.caption("A constant shift in log-odds is not a constant ratio. "
                "Applying a single 0.69 understates high-strikeout hitters "
                "by about 1.8 points at a 35% MLB rate.")
@@ -178,7 +178,7 @@ with tab_pitchers:
         {"Group": "Pitchers", "Metric": "BB%", "Cross-league correlation": 0.59},
         {"Group": "Pitchers", "Metric": "HR%", "Cross-league correlation": 0.25},
     ])
-    st.dataframe(comp, use_container_width=True, hide_index=True)
+    st.dataframe(comp, width="stretch", hide_index=True)
 
     st.markdown("#### The one promising number did not survive a check")
     thresh = pd.DataFrame([
@@ -186,7 +186,7 @@ with tab_pitchers:
         {"Batters faced floor": "400 (n=18)", "K%": 0.06, "BB%": 0.22},
         {"Batters faced floor": "600 (n=11)", "K%": 0.18, "BB%": 0.38},
     ])
-    st.dataframe(thresh, use_container_width=True, hide_index=True)
+    st.dataframe(thresh, width="stretch", hide_index=True)
 
     st.error(
         "**BB% is significant only at the loosest cut** — 0.59 with "
@@ -228,7 +228,7 @@ with tab_pitchers:
                            "kbo_k_pct": "{:.1%}", "mlb_k_pct": "{:.1%}",
                            "kbo_bb_pct": "{:.1%}", "mlb_bb_pct": "{:.1%}",
                            "kbo_hr_pct": "{:.1%}", "mlb_hr_pct": "{:.1%}"}),
-            use_container_width=True, hide_index=True)
+            width="stretch", hide_index=True)
 with tab_method:
     st.subheader("Method")
     st.code("""mu                      league shift in log-odds of a strikeout
